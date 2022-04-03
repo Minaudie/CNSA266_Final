@@ -1,0 +1,44 @@
+CREATE DATABASE `auction` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+
+CREATE TABLE `bids` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `item_id` int DEFAULT NULL,
+  `amount` float DEFAULT NULL,
+  `user_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `categories` (
+  `id` tinyint NOT NULL AUTO_INCREMENT,
+  `cat` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `images` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `item_id` int DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `items` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
+  `cat_id` tinyint DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `startingprice` float DEFAULT NULL,
+  `description` text,
+  `dateends` datetime DEFAULT NULL,
+  `endnotified` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(10) DEFAULT NULL,
+  `password` varchar(10) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `verifystring` varchar(20) DEFAULT NULL,
+  `active` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
