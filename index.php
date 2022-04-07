@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+<!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -6,13 +6,14 @@
 	<meta http-equiv="content-type"	content="text/html; charset=iso-8859-1"/>
 </head>
 <body>
-	<p>
+	<p>-->
 		<?php
-			require(“config.php”);
-			require(“functions.php”);
-			require(“functions.php”);
-			require(“header.php”);
-			$validid = pf_validate_number($_GET[‘id’], “value”, $config_basedir);
+			require("config.php");
+			require("functions.php");
+
+			$validid = pf_validate_number($_GET['id'], "value", $config_basedir);
+
+			require("header.php");
 
 			if($validid == 0) {
 				$sql = "SELECT items.* FROM items WHERE dateends > NOW()";
@@ -25,15 +26,16 @@
 			$numrows = mysql_num_rows($result);
 
 			echo "<h1>Items available</h1>";
-			echo "<table cellpadding='5'";
+			echo "<table cellpadding='5'>";
 			echo "<tr>";
 			echo "<th>Image</th>";
 			echo "<th>Item</th>";
 			echo "<th>Bids</th>";
+			echo "<th>Price</th>";
 			echo "</tr>";
 
 			if($numrows == 0) {
-				echo "<tr><td colspan='4'>No items!</td></tr>";
+				echo "<tr><td colspan=4>No items!</td></tr>";
 			} else {
 				while($row = mysql_fetch_assoc($result)) {
 					$imagesql = "SELECT * FROM images WHERE item_id = " .
@@ -79,17 +81,16 @@
 					} else {
 						echo sprintf('%.2f', $bidrow['highestbid']);
 					}
-					echo "</td>"
+					echo "</td>";
 
 					echo "<td>" . date("D jS F Y g.iA", strtotime($row['dateends'])) . "</td>";
 					echo "</tr>";
-
 				}
 			}
 
 			echo "</table>";
 			require("footer.php");
 		?>
-	</p>
+<!--	</p>
 </body>
-</html>
+</html>-->

@@ -7,12 +7,11 @@
 	mysql_select_db($dbdatabase, $db);
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
 <head>
 	<title><?php echo $config_forumsname; ?></title>
-	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
 	<link rel="stylesheet" href="stylesheet.css" type="text/css">
 </head>
 <body>
@@ -21,6 +20,7 @@
 
 		<div id="menu">
 			<a href="index.php">Home</a>
+
 			<?php
 				if(isset($_SESSION['USERNAME']) == TRUE) {
 					echo "<a href='logout.php'>Logout</a>";
