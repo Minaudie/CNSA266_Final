@@ -1,10 +1,10 @@
 <?php
 	//database information
 	//location of DB (will be IP addr)
-	$dbhost = "localhost";
+	$dbhost = "192.168.32.140";
 	//user and password
 	$dbuser = "root";
-	$dbpassword = "";
+	$dbpassword = "cnsaCNSA1234";
 	//database name
 	$dbdatabase = "auction";
 
