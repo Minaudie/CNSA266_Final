@@ -3,7 +3,7 @@
 		$page = $script;
 		$page = $page . "?";
 
-		foreach($_GET as $key=>$val) {
+		foreach($_GET as $key => $val) {
 			$page = $page . $key . "=" . $val . "&";
 		}
 		return substr($page, 0, strlen($page)-1);

@@ -7,7 +7,7 @@
 	mysql_select_db($dbdatabase, $db);
 ?>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 4.01 Transitional//EN"
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 	"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -33,9 +33,7 @@
 		</div>
 		<div id="container">
 			<div id="bar">
-				<?php
-					require("bar.php");
-				?>
+				<?php	require("bar.php");	?>
 			</div>
 			<div id="main">
 <!-- closing tags in other files -->
