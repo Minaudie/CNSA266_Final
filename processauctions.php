@@ -2,17 +2,17 @@
   require("config.php");
   require("header.php");
 
-  $itemssql = "SELECT users.username, users.email, items.id, items.name " .
-    "FROM items, users WHERE dateends < NOW() AND items.user_id = users.id AND " .
-    "endnotified = 0;";
-  $itemsresult = mysql_query($itemssql);
+  $itemssql = mysqli_real_escape_string("SELECT users.username, users.email," .
+    " items.id, items.name FROM items, users WHERE dateends < NOW() AND " .
+    "items.user_id = users.id AND endnotified = 0;");
+  $itemsresult = mysqli_query($db, $itemssql);
 
-  while($itemsrow = mysql_fetch_assoc($itemsresult)) {
-    $bidssql = "SELECT bids.amount, users.username, user.email " .
-      "FROM bids, users WHERE bids.user_id = users.id AND item_id=" .
-      $itemsrow['id'] . " ORDER BY amount DESC LIMIT 1;";
-    $bidsresult = mysql_query($bidssql);
-    $bidsnumrows = mysql_num_rows($bidsresult);
+  while($itemsrow = mysqli_fetch_assoc($itemsresult)) {
+    $bidssql = mysqli_real_escape_string("SELECT bids.amount, users.username, " .
+      "user.email FROM bids, users WHERE bids.user_id = users.id AND item_id=" .
+      $itemsrow['id'] . " ORDER BY amount DESC LIMIT 1;");
+    $bidsresult = mysqli_query($db, $bidssql);
+    $bidsnumrows = mysqli_num_rows($bidsresult);
 
     $own_owner = $itemsrow['username'];
     $own_email = $itemsrow['email'];
@@ -29,7 +29,7 @@
       mail($own_email, "Your item '" . $own_name . "' did not sell", $owner_body);
     } else {
       echo "item with bids" . $itemsrow['id'];
-      $bidsrow = mysql_fetch_assoc($bidsresult);
+      $bidsrow = mysqli_fetch_assoc($bidsresult);
 
       $own_highestbid = $bidsrow['amount'];
 
@@ -74,9 +74,10 @@
       mail($win_email, "You won item '" . $own_name . "'!", $winner_body);
     }
 
-    $updsql = "UPDATE items SET endnotified = 1 WHERE id=" . $itemsrow['id'];
+    $updsql = mysqli_real_escape_string("UPDATE items SET endnotified = 1 WHERE id=" .
+    $itemsrow['id']);
     echo $updsql;
-    mysql_query($updsql);
+    mysqli_query($db, $updsql);
 }
 
 require("footer.php");

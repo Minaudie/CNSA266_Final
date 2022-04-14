@@ -2,21 +2,27 @@
   require("config.php");
   require("functions.php");
 
-  $db = mysql_connect($dbhost, $dbuser, $dbpassword);
-  mysql_select_db($dbdatabase, $db);
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
 
   $validimageid = pf_validate_number($_GET['image_id'], "redirect", $config_basedir);
   $validitemid = pf_validate_number($_GET['item_id'], "redirect", $config_basedir);
 
   if($_POST['submityes']) {
-    $imagesql = "SELECT name FROM images WHERE id=" . $validimageid;
-    $imageresult = mysql_query($imagesql);
-    $imagesrow = mysql_fetch_assoc($imageresult);
+    $imagesql = mysqli_real_escape_string("SELECT name FROM images WHERE id=" .
+    $validimageid);
+    $imageresult = mysqli_query($db, $imagesql);
+    $imagesrow = mysqli_fetch_assoc($imageresult);
 
     unlink("./images/" . $imagerow['name']);
 
-    $delsql = "DELETE FROM images WHERE id=" . $validimageid;
-    mysql_query($delsql);
+    $delsql = mysqli_real_escape_string("DELETE FROM images WHERE id=" .
+    $validimageid);
+    mysqli_query($db, $delsql);
 
     header("Location: " . $config_basedir . "addimages.php?id=" . $validitemid);
   } elseif($_POST["submitno"]) {

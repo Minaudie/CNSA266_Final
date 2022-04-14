@@ -7,14 +7,14 @@
 	require("header.php");
 
 	if($validid == 0) {
-		$sql = "SELECT items.* FROM items WHERE dateends > NOW()";
+		$sql = mysqli_real_escape_string("SELECT items.* FROM items WHERE dateends > NOW()");
 	} else {
-		$sql = "SELECT * FROM items WHERE dateends > NOW() AND cat_id = " .
-			$validid . ";";
+		$sql = mysqli_real_escape_string("SELECT * FROM items WHERE dateends > NOW()" .
+			"AND cat_id = " .	$validid . ";");
 	}
 
-	$result = mysql_query($sql);
-	$numrows = mysql_num_rows($result);
+	$result = mysqli_query($db, $sql);
+	$numrows = mysqli_num_rows($result);
 
 	echo "<h1>Items available</h1>";
 	echo "<table cellpadding='5'>";
@@ -28,17 +28,17 @@
 	if($numrows == 0) {
 		echo "<tr><td colspan=4>No items!</td></tr>";
 	} else {
-		while($row = mysql_fetch_assoc($result)) {
-			$imagesql = "SELECT * FROM images WHERE item_id = " .
-				$row['id'] . " LIMIT 1";
-			$imageresult = mysql_query($imagesql);
+		while($row = mysqli_fetch_assoc($result)) {
+			$imagesql = mysqli_real_escape_string("SELECT * FROM images WHERE item_id = " .
+				$row['id'] . " LIMIT 1");
+			$imageresult = mysqli_query($db, $imagesql);
 			$imagenumrows = mysql_num_rows($imageresult);
 
 			echo "<tr>";
 			if($imagenumrows == 0) {
 				echo "<td>No image</td>";
 			} else {
-				$imagerow = mysql_fetch_assoc($imageresult);
+				$imagerow = mysqli_fetch_assoc($imageresult);
 				echo "<td><img src='./images/" . $imagerow['name'] .
 					"' width='100'></td>";
 			}
@@ -52,12 +52,12 @@
 			}
 			echo "</td>";
 
-			$bidsql = "SELECT item_id, MAX(amount) AS highestbid," .
+			$bidsql = mysqli_real_escape_string("SELECT item_id, MAX(amount) AS highestbid," .
 				" COUNT(id) AS numberofbids FROM bids WHERE item_id=" .
-				$row['id'] . " GROUP BY item_id;";
-			$bidresult = mysql_query($bidsql);
-			$bidrow = mysql_fetch_assoc($bidresult);
-			$bidnumrows = mysql_num_rows($bidresult);
+				$row['id'] . " GROUP BY item_id;");
+			$bidresult = mysqli_query($db, $bidsql);
+			$bidrow = mysqli_fetch_assoc($bidresult);
+			$bidnumrows = mysqli_num_rows($bidresult);
 
 			echo "<td>";
 			if($bidnumrows == 0) {

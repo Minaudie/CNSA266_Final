@@ -1,7 +1,8 @@
 <?php
 	//database information
 	//location of DB (will be IP addr)
-	$dbhost = "192.168.32.140";
+	//$dbhost = "192.168.32.140";
+	$dbhost = "localhost";
 	//user and password
 	$dbuser = "root";
 	$dbpassword = "cnsaCNSA1234";

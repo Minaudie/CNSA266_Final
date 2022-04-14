@@ -2,14 +2,19 @@
   session_start();
   require("config.php");
 
-  $db = mysql_connect($dbhost, $dbuser, $dbpassword);
-  mysql_select_db($dbdatabase, $db);
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
 
   if($_POST['submit']) {
     if($_POST['password1'] == $_POST['password2']) {
-      $checksql = "SELECT * FROM users WHERE username = '" . $_POST['username'] . "';";
-      $checkresult = mysql_query($checksql);
-      $checknumrows = mysql_num_rows($checkresult);
+      $checksql = mysqli_real_escape_string("SELECT * FROM users WHERE username = '" .
+        $_POST['username'] . "';");
+      $checkresult = mysqli_query($db, $checksql);
+      $checknumrows = mysqli_num_rows($checkresult);
 
       if($checknumrows == 1) {
         header("Location: " . $config_basedir . "register.php?error=taken");
@@ -26,7 +31,7 @@
         $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
           " VALUES('" . $_POST['username'] . "', '" . $_POST['password1'] .
           "', '" . $_POST['email'] . "', '" . addslashes($randomstring) . "', 0);";
-        mysql_query($sql);
+        mysqli_query($db, $sql);
 
         $mail_body=<<<_MAIL_
         Hi $validusername,
@@ -68,7 +73,7 @@
 <h2>Register</h2>
 To register on the
 <?php echo $config_forumsname; ?>
-forums, fill in the form below.
+site, fill in the form below.
 
 <form action="<?php echo $SCRIPT_NAME ?>" method="POST">
   <table>

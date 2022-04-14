@@ -4,18 +4,22 @@
   require("config.php");
   require("functions.php");
 
-  $db = mysql_connect($dbhost, $dbuser, $dbpassword);
-  mysql_select_db($dbdatabase, $db);
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
 
   if($_POST['submit']) {
-    $sql = "SELECT * FROM users WHERE username = '" . $_POST['username'] .
-      "' AND password = '" . $_POST['password'] . "';";
+    $sql = mysqli_real_escape_string("SELECT * FROM users WHERE username = '" .
+      $_POST['username'] . "' AND password = '" . $_POST['password'] . "';");
 
-    $result = mysql_query($sql);
-    $numrows = mysql_num_rows($result);
+    $result = mysqli_query($db, $sql);
+    $numrows = mysqli_num_rows($result);
 
     if($numrows == 1) {
-      $row = mysql_fetch_assoc($result);
+      $row = mysqli_fetch_assoc($result);
 
       if($row['active'] == 1) {
         session_register("USERNAME");

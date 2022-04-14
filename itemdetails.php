@@ -1,20 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<title><?php echo $config_forumsname; ?></title>
-	<meta http-equiv="content-type"	content="text/html; charset=iso-8859-1"/>
-</head>
-<body>
-	<p>
 <?php
 	session_start();
 
   include("config.php");
   include("functions.php");
 
-  $db = mysql_connect($dbhost, $dbuser, $dbpassword);
-  mysql_select_db($dbdatabase, $db);
+	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
 
   $validid = pf_validate_number($_GET['id'], "redirect", $config_basedir);
 
@@ -25,15 +20,16 @@
         $validid . "&error=letter");
     }
 
-    $theitemsql = "SELECT * FROM items WHERE id=" . $validid . ";";
-    $theitemresult = mysql_query($theitemsql);
-    $theitemrow = mysql_fetch_assoc($theitemresult);
+    $theitemsql = mysqli_real_escape_string("SELECT * FROM items WHERE id="
+			. $validid . ";");
+    $theitemresult = mysqli_query($db, $theitemsql);
+    $theitemrow = mysqli_fetch_assoc($theitemresult);
 
-    $checkbidsql = "SELECT item_id, MAX(amount) AS highestbid, COUNT(id) " .
-      "AS number_of_bids FROM bids WHERE item_id=" . $validid .
-      " GROUP BY item_id;";
-    $checkbidresult = mysql_query($checkbidsql);
-    $checkbidnumrows = mysql_num_rows($checkbidresult);
+    $checkbidsql = mysqli_real_escape_string("SELECT item_id, MAX(amount)" .
+		 	. "AS highestbid, COUNT(id) AS number_of_bids FROM bids WHERE item_id="
+			. $validid . " GROUP BY item_id;");
+    $checkbidresult = mysqli_query($checkbidsql);
+    $checkbidnumrows = mysqli_num_rows($checkbidresult);
 
     if($checkbidnumrows == 0) {
 
@@ -42,7 +38,7 @@
           $validid . "&error=lowprice#bidbox");
       }
     } else {
-      $checkbidrow = mysql_fetch_assoc($checkbidresult);
+      $checkbidrow = mysqli_fetch_assoc($checkbidresult);
 
       if($checkbidrow['highestbid'] > $_POST['bid']) {
         header("Location: " . $config_basedir . "itemdetails.php?id=" .
@@ -50,21 +46,21 @@
       }
 		}
 
-    //weird concatenation because the INSERT statement was acting weird as a string
-    $inssql = "INSERT INTO " . "bids(item_id, amount,user_id) VALUES(" .
-      $validid . ", " . $_POST['bid'] . ", " . $_SESSION['USERID'] . ");";
-    mysql_query($inssql);
+    $inssql = mysqli_real_escape_string("INSERT INTO "
+			. "bids(item_id, amount,user_id) VALUES(" . $validid . ", " .
+			$_POST['bid'] . ", " . $_SESSION['USERID'] . ");");
+    mysqli_query($db, $inssql);
 
     header("Location: " . $config_basedir . "itemdetails.php?id=" . $validid);
 
   } else {
 	  require("header.php");
 
-	  $itemsql = "SELECT UNIX_TIMESTAMP(dateends) AS dateepoch, items.* FROM " .
-	    "items WHERE id=" . $validid . ";";
-	  $itemresult = mysql_query($itemsql);
+	  $itemsql = mysqli_real_escape_string("SELECT UNIX_TIMESTAMP(dateends)" .
+		 	"AS dateepoch, items.* FROM items WHERE id=" . $validid . ";");
+	  $itemresult = mysqli_query($db, $itemsql);
 
-	  $itemrow = mysql_fetch_assoc($itemresult);
+	  $itemrow = mysqli_fetch_assoc($itemresult);
 
 	  $nowepoch = mktime();
 	  $rowepoch = $itemrow['dateepoch'];
@@ -75,14 +71,16 @@
 
 	  echo "<h2>" . $itemrow['name'] . "</h2>";
 
-	  $imagesql = "SELECT * FROM images WHERE item_id=" . $validid . ";";
-	  $imageresult = mysql_query($imagesql);
-	  $imagenumrows = mysql_num_rows($imageresult);
+	  $imagesql = mysqli_real_escape_string("SELECT * FROM images WHERE item_id=" .
+			$validid . ";");
+	  $imageresult = mysqli_query($db, $imagesql);
+	  $imagenumrows = mysqli_num_rows($imageresult);
 
-	  $bidsql = "SELECT item_id, MAX(amount) AS highestbid, COUNT(id) AS " .
-	    "number_of_bids FROM bids WHERE item_id=" . $validid . " GROUP BY item_id;";
-	  $bidresult = mysql_query($bidsql);
-	  $bidnumrows = mysql_num_rows($bidresult);
+	  $bidsql = mysqli_real_escape_string("SELECT item_id, MAX(amount) AS" .
+		 	" highestbid, COUNT(id) AS number_of_bids FROM bids WHERE item_id=" .
+			$validid . " GROUP BY item_id;");
+	  $bidresult = mysqli_query($db, $bidsql);
+	  $bidnumrows = mysqli_num_rows($bidresult);
 
 	  echo "<p>";
 
@@ -90,7 +88,7 @@
 	    echo "<strong>This item has no bids</strong> - <strong>Starting Price</strong>: " .
 	      $config_currency . sprintf('%.2f', $itemrow['startingprice']);
 	  } else {
-	    $bidrow = mysql_fetch_assoc($bidresult);
+	    $bidrow = mysqli_fetch_assoc($bidresult);
 	    echo "<strong>Number of Bids</strong>: " . $bidrow['number_of_bids'] .
 	      " - <strong>Current Price</strong>: " . $config_currency .
 	      sprintf('%.2f', $bidrow['highestbid']);
@@ -103,7 +101,7 @@
 	  if($imagenumrows == 0) {
 	    echo "No images";
 	  } else {
-	    while($imagerow = mysql_fetch_assoc($imageresult)) {
+	    while($imagerow = mysqli_fetch_assoc($imageresult)) {
 	      echo "<img src='./images/" . $imagerow['name'] . "' width='200'>";
 	    }
 	  }
@@ -148,17 +146,17 @@
         echo "This auction has now ended.";
       }
 
-      $historysql = "SELECT bids.amount, users.username FROM bids, " .
-        "users WHERE bids.user_id = users.id AND item_id=" .
-        $validid . " ORDER BY amount DESC";
-      $historyresult = mysql_query($historysql);
-      $historynumrows = mysql_num_rows($historyresult);
+      $historysql = mysqli_real_escape_string("SELECT bids.amount," .
+				" users.username FROM bids, users WHERE bids.user_id = users.id AND item_id=" .
+        $validid . " ORDER BY amount DESC;");
+      $historyresult = mysqli_query($db, $historysql);
+      $historynumrows = mysqli_num_rows($historyresult);
 
       if($historynumrows >= 1) {
         echo "<h2>Bid History</h2>";
         echo "<ul>";
 
-        while($historyrow = mysql_fetch_assoc($historyresult)) {
+        while($historyrow = mysqli_fetch_assoc($historyresult)) {
           echo "<li>" . $historyrow['username'] . " - " .
             $config_currency . sprintf('%.2f', $historyrow['amount']) .
             "</li>";
@@ -170,7 +168,3 @@
 }
     require("footer.php");
 ?>
-
-	</p>
-</body>
-</html>

@@ -1,14 +1,14 @@
 <?php
 	require("header.php");
 
-	$catsql = "SELECT * FROM categories ORDER BY category ASC;";
-	$catresult = msql_query($catsql);
+	$catsql = mysqli_real_escape_string("SELECT * FROM categories ORDER BY category ASC;");
+	$catresult = msqli_query($db, $catsql);
 
 	echo "<h1>Categories</h1>";
 	echo "<ul>";
 	echo "<li><a href='index.php'>View All</a></li>";
 
-	while($catrow = mysql_fetch_assoc($catresult)) {
+	while($catrow = mysqli_fetch_assoc($catresult)) {
 		echo "<li><a href='index.php?id=" . $catrow['id'] . "'>" .
 			$catrow['category'] . "</a></li>";
 	}

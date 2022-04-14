@@ -3,8 +3,12 @@
 
 	require("config.php");
 
-	$db = mysql_connect($dbhost, $dbuser, $dbpassword);
-	mysql_select_db($dbdatabase, $db);
+	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"

@@ -4,8 +4,12 @@
   require("config.php");
   require("functions.php");
 
-  $db = mysql_connect($dbhost, $dbuser, $dbpassword);
-  mysql_select_db($dbdatabase, $db);
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
 
   if(isset($_SESSION['USERNAME']) == FALSE) {
     header("Location: " . $config_basedir . "/login.php?ref=newitem");
@@ -19,14 +23,14 @@
         "-" . sprintf("%02d", $_POST['month']) . " " . $_POST['hour'] .
         ":" . $_POST['minute'] . ":00";
 
-      $itemsql = "INSERT INTO items(user_id, cat_id, name, startingprice, " .
-        "description, dateends)" . "VALUES(" . $_SESSION['USERID'] .
-        ", '" . $_POST['cat'] . ", '" . addslashes($_POST['name']) .
-        "', " . $_POST['price'] . ", '" addslashes($_POST['description']) .
-        "', '" . $concatdate . "');";
+      $itemsql = mysqli_real_escape_string("INSERT INTO" . " items(user_id, cat_id," .
+        " name, startingprice, " . "description, dateends)" . "VALUES(" .
+        $_SESSION['USERID'] . ", '" . $_POST['cat'] . ", '" .
+        addslashes($_POST['name']) . "', " . $_POST['price'] . ", '" .
+        addslashes($_POST['description']) . "', '" . $concatdate . "');");
 
-      mysql_query($itemsql);
-      $item_id = mysql_insert_id();
+      mysqli_query($db, $itemsql);
+      $item_id = mysqli_insert_id();
 
       header("Location: " . $config_basedir . "/addimages.php?id=" . $itemid);
     } else {
@@ -53,15 +57,15 @@
 <form action="<?php echo pf_script_with_get($SCRIPT_NAME); ?>" method="POST">
   <table>
     <?php
-      $catsql = "SELECT * FROM categories ORDER BY category;";
-      $catresult = mysql_query($catsql);
+      $catsql = mysqli_real_escape_string("SELECT * FROM categories ORDER BY category;");
+      $catresult = mysqli_query($db, $catsql);
     ?>
     <tr>
       <td>Category</td>
       <td>
         <select name="cat">
           <?php
-            while($catrow = mysql_fetch_assoc($catresult)) {
+            while($catrow = mysqli_fetch_assoc($catresult)) {
               echo "<option value='" . $catrow['id'] . "'>" . $catrow['category'] .
                 "</option>";
             }

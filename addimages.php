@@ -4,17 +4,23 @@
   include("config.php");
   include("functions.php");
 
-  $db = mysql_connect($dbhost, $dbuser, $dbpassword);
-  mysql_select_db($dbdatabase, $db);
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
+	//mysql_select_db($dbdatabase, $db);
+
   $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
 
   if(isset($_SESSION['USERNAME']) == FALSE) {
     header("Location: " . $HOST_NAME . "login.php?ref=images&id=" . $validid);
   }
 
-  $theitemsql = "SELECT user_id FROM items WHERE id=" . $validid . ";";
-  $theitemresult = mysql_query($theitemsql);
-  $theitemrow = mysql_fetch_assoc($theitemresult);
+  $theitemsql = mysqli_real_escape_string("SELECT user_id FROM items WHERE id=" .
+    $validid . ";");
+  $theitemresult = mysqli_query($db, $theitemsql);
+  $theitemrow = mysqli_fetch_assoc($theitemresult);
 
   if($theitemrow['user_id'] != $_SESSION['USERID']) {
     header("Location: " . $config_basedir);
@@ -34,9 +40,9 @@
       $uploadfile = $uplaoddir . $_FILES['userfile']['name'];
 
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-        $inssql = "INSERT INTO images(item_id, name)" . "VALUES(" . $validid .
-          ", '" . $_FILES['userfile']['name'] . "')";
-        $mysql_query($inssql);
+        $inssql = mysqli_real_escape_string("INSERT INTO images(item_id, name)" .
+          "VALUES(" . $validid . ", '" . $_FILES['userfile']['name'] . "')");
+        mysqli_query($db, $inssql);
 
         header("Location: " . $HOST_NAME . $SCRIPT_NAME . "?id=" . $validid);
       } else {
@@ -46,9 +52,10 @@
   } else {
     require("header.php");
 
-    $imagessql = "SELECT * FROM images WHERE item_id=" . $validid . ";";
-    $imagesresult = mysql_query($imagessql);
-    $imagesnumrows = mysql_num_rows($imagesresult);
+    $imagessql = mysqli_real_escape_string("SELECT * FROM images WHERE item_id=" .
+      $validid . ";");
+    $imagesresult = mysqli_query($db, $imagessql);
+    $imagesnumrows = mysqli_num_rows($imagesresult);
 
     echo "<h1>Current images</h1>";
 
@@ -56,7 +63,7 @@
       echo "No images.";
     } else {
       echo "<table>";
-      while($imagesrow = mysql_fetch_assoc($imagesresult)) {
+      while($imagesrow = mysqli_fetch_assoc($imagesresult)) {
         echo "<tr>";
         echo "<td><img src='" . $config_basedir . "/images/" . $imagesrow['name'] .
           "' width='100'></td>";
