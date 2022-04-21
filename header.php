@@ -1,4 +1,6 @@
 <?php
+	//added save path to php.ini
+	//session.save_path = "C:\CNSA266_Final\tmp"
 	session_start();
 
 	require("config.php");

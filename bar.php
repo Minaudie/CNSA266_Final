@@ -8,10 +8,10 @@
 	echo "<ul>";
 	echo "<li><a href='index.php'>View All</a></li>";
 
-	while($catrow = mysqli_fetch_assoc($catresult)) {
-		echo "<li><a href='index.php?id=" . $catrow['id'] . "'>" .
-			$catrow['category'] . "</a></li>";
-	}
+//	while($catrow = mysqli_fetch_assoc($catresult)) {
+	//	echo "<li><a href='index.php?id=" . $catrow['id'] . "'>" .
+		//	$catrow['category'] . "</a></li>";
+	//}
 
 	echo "</ul>";
 ?>

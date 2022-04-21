@@ -7,9 +7,9 @@
 	require("header.php");
 
 	if($validid == 0) {
-		$sql = mysqli_real_escape_string("SELECT items.* FROM items WHERE dateends > NOW()");
+		$sql = mysqli_real_escape_string($db, "SELECT items.* FROM items WHERE dateends > NOW()");
 	} else {
-		$sql = mysqli_real_escape_string("SELECT * FROM items WHERE dateends > NOW()" .
+		$sql = mysqli_real_escape_string($db, "SELECT * FROM items WHERE dateends > NOW()" .
 			"AND cat_id = " .	$validid . ";");
 	}
 
@@ -29,10 +29,10 @@
 		echo "<tr><td colspan=4>No items!</td></tr>";
 	} else {
 		while($row = mysqli_fetch_assoc($result)) {
-			$imagesql = mysqli_real_escape_string("SELECT * FROM images WHERE item_id = " .
+			$imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id = " .
 				$row['id'] . " LIMIT 1");
 			$imageresult = mysqli_query($db, $imagesql);
-			$imagenumrows = mysql_num_rows($imageresult);
+			$imagenumrows = mysqli_num_rows($imageresult);
 
 			echo "<tr>";
 			if($imagenumrows == 0) {
@@ -52,7 +52,7 @@
 			}
 			echo "</td>";
 
-			$bidsql = mysqli_real_escape_string("SELECT item_id, MAX(amount) AS highestbid," .
+			$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS highestbid," .
 				" COUNT(id) AS numberofbids FROM bids WHERE item_id=" .
 				$row['id'] . " GROUP BY item_id;");
 			$bidresult = mysqli_query($db, $bidsql);
