@@ -2,7 +2,13 @@
 	require("config.php");
 	require("functions.php");
 
-	$validid = pf_validate_number($_GET['id'], "value", $config_basedir);
+	//pf_validate_number checks isset, however, was getting an error on this page
+	//function will return 0 if not set and second param is not "redirect"
+	if(isset($_GET['id'])) {
+		$validid = pf_validate_number($_GET['id'], "value", $config_basedir);
+	} else {
+		$validid = 0;
+	}
 
 	require("header.php");
 
@@ -46,10 +52,15 @@
 			echo "<td>";
 			echo "<a href='itemdetails.php?id=" . $row['id'] .
 				"'>" . $row['name'] . "</a>";
-			if($_SESSION['USERID'] == $row['user_id']) {
-				echo " - [<a href='edititem.php?id=" . $row['id'] .
-					"'>edit</a>]";
+
+			//check if session variable is set 
+			if(isset($_SESSION['USERID'])) {
+				if($_SESSION['USERID'] == $row['user_id']) {
+					echo " - [<a href='edititem.php?id=" . $row['id'] .
+						"'>edit</a>]";
+				}
 			}
+
 			echo "</td>";
 
 			$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS highestbid," .
