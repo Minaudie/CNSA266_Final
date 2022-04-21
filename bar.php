@@ -1,8 +1,8 @@
 <?php
-	require("header.php");
+	//require("header.php");
 
-	$catsql = mysqli_real_escape_string("SELECT * FROM categories ORDER BY category ASC;");
-	$catresult = msqli_query($db, $catsql);
+	//$catsql = mysqli_real_escape_string("SELECT * FROM categories ORDER BY category ASC;");
+	//$catresult = msqli_query($db, $catsql);
 
 	echo "<h1>Categories</h1>";
 	echo "<ul>";
