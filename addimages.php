@@ -17,7 +17,7 @@
     header("Location: " . $HOST_NAME . "login.php?ref=images&id=" . $validid);
   }
 
-  $theitemsql = mysqli_real_escape_string("SELECT user_id FROM items WHERE id=" .
+  $theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
     $validid . ";");
   $theitemresult = mysqli_query($db, $theitemsql);
   $theitemrow = mysqli_fetch_assoc($theitemresult);
@@ -40,7 +40,7 @@
       $uploadfile = $uplaoddir . $_FILES['userfile']['name'];
 
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-        $inssql = mysqli_real_escape_string("INSERT INTO images(item_id, name)" .
+        $inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
           "VALUES(" . $validid . ", '" . $_FILES['userfile']['name'] . "')");
         mysqli_query($db, $inssql);
 
@@ -52,7 +52,7 @@
   } else {
     require("header.php");
 
-    $imagessql = mysqli_real_escape_string("SELECT * FROM images WHERE item_id=" .
+    $imagessql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
       $validid . ";");
     $imagesresult = mysqli_query($db, $imagessql);
     $imagesnumrows = mysqli_num_rows($imagesresult);

@@ -23,7 +23,7 @@
         "-" . sprintf("%02d", $_POST['month']) . " " . $_POST['hour'] .
         ":" . $_POST['minute'] . ":00";
 
-      $itemsql = mysqli_real_escape_string("INSERT INTO" . " items(user_id, cat_id," .
+      $itemsql = mysqli_real_escape_string($db, "INSERT INTO" . " items(user_id, cat_id," .
         " name, startingprice, " . "description, dateends)" . "VALUES(" .
         $_SESSION['USERID'] . ", '" . $_POST['cat'] . ", '" .
         addslashes($_POST['name']) . "', " . $_POST['price'] . ", '" .
@@ -57,7 +57,7 @@
 <form action="<?php echo pf_script_with_get($SCRIPT_NAME); ?>" method="POST">
   <table>
     <?php
-      $catsql = mysqli_real_escape_string("SELECT * FROM categories ORDER BY category;");
+      $catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY category;");
       $catresult = mysqli_query($db, $catsql);
     ?>
     <tr>

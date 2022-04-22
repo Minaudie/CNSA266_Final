@@ -2,13 +2,13 @@
   require("config.php");
   require("header.php");
 
-  $itemssql = mysqli_real_escape_string("SELECT users.username, users.email," .
+  $itemssql = mysqli_real_escape_string($db, "SELECT users.username, users.email," .
     " items.id, items.name FROM items, users WHERE dateends < NOW() AND " .
     "items.user_id = users.id AND endnotified = 0;");
   $itemsresult = mysqli_query($db, $itemssql);
 
   while($itemsrow = mysqli_fetch_assoc($itemsresult)) {
-    $bidssql = mysqli_real_escape_string("SELECT bids.amount, users.username, " .
+    $bidssql = mysqli_real_escape_string($db, "SELECT bids.amount, users.username, " .
       "user.email FROM bids, users WHERE bids.user_id = users.id AND item_id=" .
       $itemsrow['id'] . " ORDER BY amount DESC LIMIT 1;");
     $bidsresult = mysqli_query($db, $bidssql);
@@ -74,7 +74,7 @@
       mail($win_email, "You won item '" . $own_name . "'!", $winner_body);
     }
 
-    $updsql = mysqli_real_escape_string("UPDATE items SET endnotified = 1 WHERE id=" .
+    $updsql = mysqli_real_escape_string($db, "UPDATE items SET endnotified = 1 WHERE id=" .
     $itemsrow['id']);
     echo $updsql;
     mysqli_query($db, $updsql);

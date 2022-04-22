@@ -13,14 +13,14 @@
   $validitemid = pf_validate_number($_GET['item_id'], "redirect", $config_basedir);
 
   if($_POST['submityes']) {
-    $imagesql = mysqli_real_escape_string("SELECT name FROM images WHERE id=" .
+    $imagesql = mysqli_real_escape_string($db, "SELECT name FROM images WHERE id=" .
     $validimageid);
     $imageresult = mysqli_query($db, $imagesql);
     $imagesrow = mysqli_fetch_assoc($imageresult);
 
     unlink("./images/" . $imagerow['name']);
 
-    $delsql = mysqli_real_escape_string("DELETE FROM images WHERE id=" .
+    $delsql = mysqli_real_escape_string($db, "DELETE FROM images WHERE id=" .
     $validimageid);
     mysqli_query($db, $delsql);
 

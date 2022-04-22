@@ -20,12 +20,12 @@
         $validid . "&error=letter");
     }
 
-    $theitemsql = mysqli_real_escape_string("SELECT * FROM items WHERE id="
+    $theitemsql = mysqli_real_escape_string($db, "SELECT * FROM items WHERE id="
 			. $validid . ";");
     $theitemresult = mysqli_query($db, $theitemsql);
     $theitemrow = mysqli_fetch_assoc($theitemresult);
 
-    $checkbidsql = mysqli_real_escape_string("SELECT item_id, MAX(amount)" .
+    $checkbidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount)" .
 		 	. "AS highestbid, COUNT(id) AS number_of_bids FROM bids WHERE item_id="
 			. $validid . " GROUP BY item_id;");
     $checkbidresult = mysqli_query($checkbidsql);
@@ -46,7 +46,7 @@
       }
 		}
 
-    $inssql = mysqli_real_escape_string("INSERT INTO "
+    $inssql = mysqli_real_escape_string($db, "INSERT INTO "
 			. "bids(item_id, amount,user_id) VALUES(" . $validid . ", " .
 			$_POST['bid'] . ", " . $_SESSION['USERID'] . ");");
     mysqli_query($db, $inssql);
@@ -56,7 +56,7 @@
   } else {
 	  require("header.php");
 
-	  $itemsql = mysqli_real_escape_string("SELECT UNIX_TIMESTAMP(dateends)" .
+	  $itemsql = mysqli_real_escape_string($db, "SELECT UNIX_TIMESTAMP(dateends)" .
 		 	"AS dateepoch, items.* FROM items WHERE id=" . $validid . ";");
 	  $itemresult = mysqli_query($db, $itemsql);
 
@@ -71,12 +71,12 @@
 
 	  echo "<h2>" . $itemrow['name'] . "</h2>";
 
-	  $imagesql = mysqli_real_escape_string("SELECT * FROM images WHERE item_id=" .
+	  $imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
 			$validid . ";");
 	  $imageresult = mysqli_query($db, $imagesql);
 	  $imagenumrows = mysqli_num_rows($imageresult);
 
-	  $bidsql = mysqli_real_escape_string("SELECT item_id, MAX(amount) AS" .
+	  $bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS" .
 		 	" highestbid, COUNT(id) AS number_of_bids FROM bids WHERE item_id=" .
 			$validid . " GROUP BY item_id;");
 	  $bidresult = mysqli_query($db, $bidsql);
@@ -146,7 +146,7 @@
         echo "This auction has now ended.";
       }
 
-      $historysql = mysqli_real_escape_string("SELECT bids.amount," .
+      $historysql = mysqli_real_escape_string($db, "SELECT bids.amount," .
 				" users.username FROM bids, users WHERE bids.user_id = users.id AND item_id=" .
         $validid . " ORDER BY amount DESC;");
       $historyresult = mysqli_query($db, $historysql);

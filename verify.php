@@ -4,7 +4,7 @@
   $verifystring = urldecode($_GET['verify']);
   $verifyemail = urldecode($_GET['email']);
 
-  $sql = mysqli_real_escape_string("SELECT id FROM users WHERE verifystring = '" .
+  $sql = mysqli_real_escape_string($db, "SELECT id FROM users WHERE verifystring = '" .
     $verifystring . "' AND email = '" . $verifyemail . "';");
   $result = mysqli_query($db, $sql);
   $numrows = mysqli_num_rows($result);
@@ -12,7 +12,7 @@
   if($numrows == 1) {
     $row = mysqli_fetch_assoc($result);
 
-    $sql = mysqli_real_escape_string("UPDATE users SET active = 1 WHERE id=" .
+    $sql = mysqli_real_escape_string($db, "UPDATE users SET active = 1 WHERE id=" .
       $row['id']);
     $result = mysqli_query($db, $sql);
 
