@@ -15,7 +15,7 @@
 	$config_adminemail = "mdorosz202 AT stevenscollege DOT edu";
 
 	// location of files on web server (linux + apache)
-	$config_basedir = "http://localhost";
+	$config_basedir = "http://localhost/";
 
 	// The currency used on the auction
 	//it really just puts the symbol before the prices, no calculations

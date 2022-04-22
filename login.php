@@ -68,27 +68,30 @@ Don't have an account? Go and <a href="register.php">Register!</a>
         $row = mysqli_fetch_assoc($result);
 
         if($row['active'] == 1) {
-          session_register("USERNAME");
-          session_register("USERID");
+          //deprecated/removed over a decade ago :)
+          //session_register("USERNAME");
+          //session_register("USERID");
 
           $_SESSION['USERNAME'] = $row['username'];
           $_SESSION['USERID'] = $row['id'];
 
-          switch($_GET['ref']) {
-            case "addbid":
-              header("Location: " . $config_basedir . "/itemdetails.php?id=" .
-                $_GET['id'] . "#bidbox");
-              break;
-            case "newitem":
-              header("Location: " . $config_basedir . "/newitem.php");
-              break;
-            case "images":
-              header("Location: " . $config_basedir . "/addimages.php?id=" .
-                $_GET['id']);
-              break;
-            default:
-              header("Location: " . $config_basedir);
-              break;
+          if(isset($_GET['ref]'])) {
+            switch($_GET['ref']) {
+              case "addbid":
+                header("Location: " . $config_basedir . "/itemdetails.php?id=" .
+                  $_GET['id'] . "#bidbox");
+                break;
+              case "newitem":
+                header("Location: " . $config_basedir . "/newitem.php");
+                break;
+              case "images":
+                header("Location: " . $config_basedir . "/addimages.php?id=" .
+                  $_GET['id']);
+                break;
+              default:
+                header("Location: " . $config_basedir . "/index.php");
+                break;
+            }
           }
         } else {
           //require("header.php");

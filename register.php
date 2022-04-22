@@ -95,8 +95,16 @@ site, fill in the form below.
           //have this line previously, changed variable name below
           //$validusername = $_POST['username'];
 
+          //TODO: TEMPORARY LOCATION
+          //changed active to 1 to bypass verify req.
+          $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
+            " VALUES('" . $username . "', '" . $password1 .
+            "', '" . $email . "', '" . addslashes($randomstring) . "', 1);";
+          mysqli_query($db, $sql);
+          header("Location: " . $config_basedir . "login.php");
 
-
+          //default php way of doing email, requires local mailserver
+          //replaced with PHPMailer library
         /*  $mail_body=<<<_MAIL_
           Hi $username,
           Please click on the following link to verify your new account:
@@ -119,7 +127,7 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
 
           //TODO: set up external html file to bring in for email body
           //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
-
+/*
           // *** PHPMailer *** //
           //set time zone for php
           date_default_timezone_set('Etc/UTC');
@@ -134,9 +142,9 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
             //set hostname
             $mail->Host = 'smtp.gmail.com';
 
-            $mail->SMTPSecure = 'tls';
-            //set port num, 465 TLS, 587 TLS/STARTTLS
-            $mail->Port = 465;
+            $mail->SMTPSecure = 'TLS';
+            //set port num, 465 TLS, 587 SMTP + STARTTLS
+            $mail->Port = 587;
             //ecryption mechanism
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
             //enable smtp authentication
@@ -144,9 +152,9 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
 
             //smtp username and password
             $mail->username="auctionsite.cnsa@gmail.com";
-            $mail->password="cnsaCNSA1234";
+            $mail->password=$dbpassword;
 
-            //mail sender
+            //mail sender, with gmail has to be same as username
             $mail->setFrom('auctionsite.cnsa@gmail.com', 'Auction Site');
             //recipient
             $mail->addAddress($email, $username);
@@ -178,7 +186,7 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
               //TODO: turn off for final
               echo $mail->ErrorInfo();
             } else { //create account
-              //TODO: change to prepared statement
+              //TODO: change to prepared statement, move before email
               $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
                 " VALUES('" . $username . "', '" . $password1 .
                 "', '" . $email . "', '" . addslashes($randomstring) . "', 0);";
@@ -193,7 +201,7 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
             //phpmailer exception
             echo $ex->errorMessage();
           }
-
+*/
         }
       } else {
         header("Location: " . $config_basedir . "register.php?error=pass");
