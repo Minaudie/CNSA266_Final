@@ -1,6 +1,8 @@
 <?php
 	//added save path to php.ini
-	//session.save_path = "C:\CNSA266_Final\tmp"
+	//session.save_path = "C:\php\tmp"
+	//suddenly disappeared from my .ini and won't save when I put it back!!
+	ini_set('session.save_path', 'C:\php\tmp');
 	session_start();
 
 	require("config.php");
