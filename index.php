@@ -1,6 +1,6 @@
 <?php
-	require("config.php");
-	require("functions.php");
+	require_once("config.php");
+	require_once("functions.php");
 
 	//pf_validate_number checks isset, however, was getting an error on this page
 	//function will return 0 if not set and second param is not "redirect"
@@ -12,6 +12,7 @@
 
 	require("header.php");
 
+	//TODO: change to prepared statements
 	if($validid == 0) {
 		$sql = mysqli_real_escape_string($db, "SELECT items.* FROM items WHERE dateends > NOW()");
 	} else {
@@ -35,6 +36,7 @@
 		echo "<tr><td colspan=4>No items!</td></tr>";
 	} else {
 		while($row = mysqli_fetch_assoc($result)) {
+			//TODO: change to prepared statement
 			$imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id = " .
 				$row['id'] . " LIMIT 1");
 			$imageresult = mysqli_query($db, $imagesql);
@@ -53,16 +55,15 @@
 			echo "<a href='itemdetails.php?id=" . $row['id'] .
 				"'>" . $row['name'] . "</a>";
 
-			//check if session variable is set 
-			if(isset($_SESSION['USERID'])) {
-				if($_SESSION['USERID'] == $row['user_id']) {
-					echo " - [<a href='edititem.php?id=" . $row['id'] .
-						"'>edit</a>]";
-				}
+			//check if session variable is set and if so, is it equal to userID
+			if(isset($_SESSION['USERID']) && $_SESSION['USERID'] == $row['user_id']) {
+				echo " - [<a href='edititem.php?id=" . $row['id'] .
+					"'>edit</a>]";
 			}
 
 			echo "</td>";
 
+			//TODO: change to prepared statement
 			$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS highestbid," .
 				" COUNT(id) AS numberofbids FROM bids WHERE item_id=" .
 				$row['id'] . " GROUP BY item_id;");

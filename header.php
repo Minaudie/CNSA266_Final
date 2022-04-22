@@ -1,11 +1,11 @@
 <?php
 	//added save path to php.ini
 	//session.save_path = "C:\php\tmp"
-	//suddenly disappeared from my .ini and won't save when I put it back!!
+	//except it decided to stop working properly and won't accept my config change
 	ini_set('session.save_path', 'C:\php\tmp');
 	session_start();
 
-	require("config.php");
+	require_once("config.php");
 
 	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -30,7 +30,7 @@
 			<a href="index.php">Home</a>
 
 			<?php
-				if(isset($_SESSION['USERNAME']) == TRUE) {
+				if(isset($_SESSION['USERNAME'])) {
 					echo "<a href='logout.php'>Logout</a>";
 				} else {
 					echo "<a href='login.php'>Login</a>";
@@ -41,7 +41,7 @@
 		</div>
 		<div id="container">
 			<div id="bar">
-				<?php	require("bar.php");	?>
+				<?php	require_once("bar.php");	?>
 			</div>
 			<div id="main">
 <!-- closing tags in other files -->

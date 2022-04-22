@@ -6,6 +6,7 @@
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
+	//TODO: change to prepared statement 
 	$catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat ASC;");
 	$catresult = mysqli_query($db, $catsql);
 
