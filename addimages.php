@@ -14,7 +14,8 @@
   $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
 
   if(isset($_SESSION['USERNAME']) == FALSE) {
-    header("Location: " . $HOST_NAME . "login.php?ref=images&id=" . $validid);
+    $url = $config_basedir . "login.php?ref=images&id=" . $validid);
+    redirect($url);
   }
 
   $theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
@@ -23,28 +24,35 @@
   $theitemrow = mysqli_fetch_assoc($theitemresult);
 
   if($theitemrow['user_id'] != $_SESSION['USERID']) {
-    header("Location: " . $config_basedir);
+    $url = $config_basedir);
+    redirect($url);
   }
 
+  //the original of this function made me want to scream
   if($_POST['submit']) {
     if($_FILES['userfile']['name'] == '') {
-      header("Location: " . $HOST_NAME . $SCRIPT_NAME . "?error=nophoto");
+      $url = $config_basedir. "addimages.php?error=nophoto");
+      redirect($url);
     } elseif($_FILES['userfile']['size'] == 0) {
-      header("Location: " . $HOST_NAME . $SCRIPT_NAME . "?error=photoprob");
+      $url = $config_basedir. "addimages.php?error=photoprob");
+      redirect($url);
     } elseif($_FILES['userfile']['size'] > $MAX_FILE_SIZE) {
-      header("Location: " . $HOST_NAME . $SCRIPT_NAME . "?error=large");
+      $url = $config_basedir. "addimages.php?error=large");
+      redirect($url);
     } elseif(!getimagesize($_FILES['userfile']['tmp_name'])) {
-      header("Location: " . $HOST_NAME . $SCRIPT_NAME . "?error=invalid");
+      $url = $config_basedir. "addimages.php?error=invalid");
+      redirect($url);
     } else {
-      $uploaddir = ""; //DIRECTORY FOR IMAGE UPLOAD ON WEB SERVER
-      $uploadfile = $uplaoddir . $_FILES['userfile']['name'];
+      $uploaddir = ""; //TODO: DIRECTORY FOR IMAGE UPLOAD ON WEB SERVER
+      $uploadfile = $uploaddir . $_FILES['userfile']['name'];
 
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
         $inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
           "VALUES(" . $validid . ", '" . $_FILES['userfile']['name'] . "')");
         mysqli_query($db, $inssql);
 
-        header("Location: " . $HOST_NAME . $SCRIPT_NAME . "?id=" . $validid);
+        $url = $config_basedir. "addimages.php?id=" . $validid);
+        redirect($url);
       } else {
         echo "There was a problem uploading your file.<br>";
       }
@@ -96,7 +104,7 @@
     }
 ?>
 
-<form enctype="multipart/form-data" action="<?php pf_script_with_get($SCRIPT_NAME); ?>"
+<form enctype="multipart/form-data" action="addimages.php"
   method="POST">
 
   <input type="hidden" name="MAX_FILE_SIZE" value="3000000">

@@ -21,21 +21,29 @@
 	}
 
 	$result = mysqli_query($db, $sql);
+	
 	$numrows = mysqli_num_rows($result);
 
+	//this line doesn't show up?
 	echo "<h1>Items available</h1>";
+	//table of available items
 	echo "<table cellpadding='5'>";
 	echo "<tr>";
+	//column headings
 	echo "<th>Image</th>";
 	echo "<th>Item</th>";
 	echo "<th>Bids</th>";
 	echo "<th>Price</th>";
+	echo "<th>End Date</th>"; //book didn't have this for some reason??
 	echo "</tr>";
 
+	//column data
 	if($numrows == 0) {
 		echo "<tr><td colspan=4>No items!</td></tr>";
 	} else {
 		while($row = mysqli_fetch_assoc($result)) {
+
+			//Image
 			//TODO: change to prepared statement
 			$imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id = " .
 				$row['id'] . " LIMIT 1");
@@ -51,18 +59,20 @@
 					"' width='100'></td>";
 			}
 
+			//item name
 			echo "<td>";
 			echo "<a href='itemdetails.php?id=" . $row['id'] .
 				"'>" . $row['name'] . "</a>";
 
+			//show button to edit item if user submitted item
 			//check if session variable is set and if so, is it equal to userID
 			if(isset($_SESSION['USERID']) && $_SESSION['USERID'] == $row['user_id']) {
 				echo " - [<a href='edititem.php?id=" . $row['id'] .
 					"'>edit</a>]";
 			}
-
 			echo "</td>";
 
+			//number of bids
 			//TODO: change to prepared statement
 			$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS highestbid," .
 				" COUNT(id) AS numberofbids FROM bids WHERE item_id=" .
@@ -78,6 +88,7 @@
 				echo $bidrow['numberofbids'] . "</td>";
 			}
 
+			//price, shows highest bid or starting price if no bids
 			echo "<td>" . $config_currency;
 			if($bidnumrows == 0) {
 				echo sprintf('%.2f', $row['startingprice']);
@@ -86,6 +97,7 @@
 			}
 			echo "</td>";
 
+			//end date of auction
 			echo "<td>" . date("D jS F Y g.iA", strtotime($row['dateends'])) . "</td>";
 			echo "</tr>";
 		}

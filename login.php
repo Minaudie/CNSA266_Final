@@ -78,30 +78,34 @@ Don't have an account? Go and <a href="register.php">Register!</a>
         if(isset($_GET['ref]'])) {
           switch($_GET['ref']) {
             case "addbid":
-              header("Location: " . $config_basedir . "/itemdetails.php?id=" .
-                $_GET['id'] . "#bidbox");
+              $url = $config_basedir . "/itemdetails.php?id=" . $_GET['id'] . "#bidbox");
+              redirect($url);
               break;
             case "newitem":
-              header("Location: " . $config_basedir . "/newitem.php");
+              $url = $config_basedir . "/newitem.php");
+              redirect($url);
               break;
             case "images":
-              header("Location: " . $config_basedir . "/addimages.php?id=" .
-                $_GET['id']);
+              $url = $config_basedir . "/addimages.php?id=" . $_GET['id']);
+              redirect($url);
               break;
             default:
-              header("Location: " . $config_basedir . "/index.php");
+              $url = $config_basedir . "/index.php");
+              redirect($url);
               break;
           }
         }
 
-        header("Location: " . $config_basedir . "/index.php");
+        $url = $config_basedir . "/index.php");
+        redirect($url);
       } else {
         //require("header.php");
         //echo "<br>This account is not verified yet. You were emailed a link to verify " .
           //"the account.<br> Please click on the link in the email to continue.";
       }
     } else {
-        header("Location: " . $config_basedir . "/login.php?error=1");
+        $url = $config_basedir . "/login.php?error=1");
+        redirect($url);
     }
   }
 

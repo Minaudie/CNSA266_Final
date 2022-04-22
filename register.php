@@ -83,7 +83,8 @@ site, fill in the form below.
 
         $randomstring = "";
         if($checknumrows == 1) {
-          header("Location: " . $config_basedir . "register.php?error=taken");
+          $url = $config_basedir . "register.php?error=taken");
+          redirect($url);
         } else {
           for($i=0; $i < 16; $i++) {
             $randomstring .= chr(mt_rand(32,126));
@@ -101,7 +102,8 @@ site, fill in the form below.
             " VALUES('" . $username . "', '" . $password1 .
             "', '" . $email . "', '" . addslashes($randomstring) . "', 1);";
           mysqli_query($db, $sql);
-          header("Location: " . $config_basedir . "login.php");
+          $url = $config_basedir . "login.php");
+          redirect($url);
 
           //default php way of doing email, requires local mailserver
           //replaced with PHPMailer library
@@ -204,7 +206,8 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
 */
         }
       } else {
-        header("Location: " . $config_basedir . "register.php?error=pass");
+        $url = $config_basedir . "register.php?error=pass");
+        redirect($url);
       }
     }
   } else {

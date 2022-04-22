@@ -16,13 +16,13 @@
 			}
 
 			if($error == 1) {
-				header("Location: " . $redirect);
+				redirect($redirect);
 			} else {
 				$final = $value;
 			}
 		} else {
 			if($function == "redirect") {
-				header("Location: " . $redirect);
+				redirect($redirect);
 			}
 
 			if($function == "value") {
@@ -31,5 +31,12 @@
 		}
 
 		return $final;
+	}
+
+	function redirect($url) {
+		ob_start();
+		header("Location: " . $url);
+		ob_end_flush();
+		exit();
 	}
 ?>

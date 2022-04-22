@@ -1,12 +1,9 @@
 <?php
-	//causes an infinite loop
-	//require("header.php");
-
 	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
-	//TODO: change to prepared statement 
+	//TODO: change to prepared statement
 	$catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat ASC;");
 	$catresult = mysqli_query($db, $catsql);
 

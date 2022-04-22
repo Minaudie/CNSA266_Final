@@ -24,9 +24,11 @@
     $validimageid);
     mysqli_query($db, $delsql);
 
-    header("Location: " . $config_basedir . "addimages.php?id=" . $validitemid);
+    $url = $config_basedir . "addimages.php?id=" . $validitemid);
+    redirect($url);
   } elseif($_POST["submitno"]) {
-    header("Location: " . $config_basedir . "addimages.php?id=" . $validitemid);
+    $url = $config_basedir . "addimages.php?id=" . $validitemid);
+    redirect($url);
   } else {
     require("header.php");
 ?>

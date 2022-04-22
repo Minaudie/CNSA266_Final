@@ -16,8 +16,8 @@
   if($_POST['submit']) {
 
 		if(is_numeric($_POST['bid']) == FALSE) {
-      header("Location: " . $config_basedir . "itemdetails.php?id=" .
-        $validid . "&error=letter");
+      $url = $config_basedir . "itemdetails.php?id=" . $validid . "&error=letter");
+			redirect($url);
     }
 
     $theitemsql = mysqli_real_escape_string($db, "SELECT * FROM items WHERE id="
@@ -34,15 +34,15 @@
     if($checkbidnumrows == 0) {
 
 			if($theitemrow['startingprice'] > $_POST['bid']) {
-        header("Location: " . $config_basedir . "itemdetails.php?id=" .
-          $validid . "&error=lowprice#bidbox");
+        $url = $config_basedir . "itemdetails.php?id=" . $validid . "&error=lowprice#bidbox");
+				redirect($url);
       }
     } else {
       $checkbidrow = mysqli_fetch_assoc($checkbidresult);
 
       if($checkbidrow['highestbid'] > $_POST['bid']) {
-        header("Location: " . $config_basedir . "itemdetails.php?id=" .
-          $validid . "&error=lowprice#bidbox");
+        $url = $config_basedir . "itemdetails.php?id=" . $validid . "&error=lowprice#bidbox");
+				redirect($url);
       }
 		}
 
@@ -51,7 +51,8 @@
 			$_POST['bid'] . ", " . $_SESSION['USERID'] . ");");
     mysqli_query($db, $inssql);
 
-    header("Location: " . $config_basedir . "itemdetails.php?id=" . $validid);
+    $url = $config_basedir . "itemdetails.php?id=" . $validid);
+		redirect($url);
 
   } else {
 	  require("header.php");
