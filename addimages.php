@@ -7,23 +7,27 @@
   mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+  $MAX_FILE_SIZE = 3000000;
 
 	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
 	//mysql_select_db($dbdatabase, $db);
 
   if(isset($_GET['id'])) {
-    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
+    $validid = 10;//pf_validate_number($_GET['id'], "redirect", "index.php");
   } else {
     $url = $config_basedir . "index.php";
-    redirect($url);
+    //redirect($url);
   }
+
+  require_once("header.php");
 
 ?>
 
   <form enctype="multipart/form-data" action="addimages.php"
     method="POST">
 
-    <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+    <!--<input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+     Did not work -->
 
     <table>
       <tr>
@@ -36,7 +40,8 @@
     </table>
   </form>
 
-  When you have finished adding photos, go and <a href="<?php echo 'itemdetails.php?id=' . $validid; ?>">see your item!</a>
+  When you have finished adding photos, go and
+    <a href="<?php //echo 'itemdetails.php?id=' . $validid; ?>">see your item!</a>
 
 <?php
 
@@ -48,7 +53,7 @@
     redirect($url);
   }*/
 
-  //TODO: replace
+  //replaced with prepared statement
   //$theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
     //$validid . ";");
   //$theitemresult = mysqli_query($db, $theitemsql);
@@ -63,10 +68,11 @@
 
   $theitemrow = mysqli_fetch_assoc($theitemresult);
 
+/* //broken
   if($theitemrow['user_id'] != $_SESSION['USERID']) {
     $url = $config_basedir . "index.php";
     redirect($url);
-  }
+  }*/
 
   //the original of this function made me want to scream
   if(isset($_POST['submit']) && $_POST['submit']) {
@@ -83,14 +89,21 @@
       $url = $config_basedir . "addimages.php?error=invalid";
       redirect($url);
     } else {
-      $uploaddir = ""; //TODO: DIRECTORY FOR IMAGE UPLOAD ON WEB SERVER
+      $uploaddir = "C:\CNSA266_Final\Images\\";
       $uploadfile = $uploaddir . $_FILES['userfile']['name'];
 
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-        //TODO: replace
-        $inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
+        //replaced with prepared statement
+        /*$inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
           "VALUES(" . $validid . ", '" . $_FILES['userfile']['name'] . "')");
-        mysqli_query($db, $inssql);
+        mysqli_query($db, $inssql);*/
+
+        //prep stmt stage 1
+        $inssql = $db->prepare("INSERT INTO images(item_id, name) VALUES(?,?);");
+        //prep stmt stage 2
+        $inssql->bind_param("is", $validid, $_FILES['userfile']['name']);
+        $inssql->execute();
+        //no result needed
 
         $url = $config_basedir. "addimages.php?id=" . $validid;
         redirect($url);
@@ -99,12 +112,18 @@
       }
     }
   } else {
-    require("header.php");
-
-    //TODO: replace
-    $imagessql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
+    //replaced with prep stmt
+    /*$imagessql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
       $validid . ";");
-    $imagesresult = mysqli_query($db, $imagessql);
+    $imagesresult = mysqli_query($db, $imagessql);*/
+
+    //prep stmt stage 1
+    $imagessql = $db->prepare("SELECT * FROM images WHERE item_id=?;");
+    //prep stmt stage 2
+    $imagessql->bind_param("i", $validid);
+    $imagessql->execute();
+    $imagesresult = $imagessql->get_result();
+
     $imagesnumrows = mysqli_num_rows($imagesresult);
 
     echo "<h1>Current images</h1>";

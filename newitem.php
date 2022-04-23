@@ -73,6 +73,7 @@
         <td>
           <?php
             //attempting to set min date to today + 1, not working
+            //TODO: set min date value or check min date later 
             $date = new DateTime('1 days');
             $dtMin = $date->format('d-m-Y\TH:i:s');
             echo '<input type="datetime-local" name="dateTimeSelect" min="$dtMin">';
