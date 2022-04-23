@@ -1,8 +1,8 @@
 <?php
-  session_start();
+  //session_start();
 
-  include("config.php");
-  include("functions.php");
+  require_once("config.php");
+  require_once("functions.php");
 
   mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -11,47 +11,88 @@
 	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
 	//mysql_select_db($dbdatabase, $db);
 
-  $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
-
-  if(isset($_SESSION['USERNAME']) == FALSE) {
-    $url = $config_basedir . "login.php?ref=images&id=" . $validid);
+  if(isset($_GET['id'])) {
+    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
+  } else {
+    $url = $config_basedir . "index.php";
     redirect($url);
   }
 
-  $theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
-    $validid . ";");
-  $theitemresult = mysqli_query($db, $theitemsql);
+?>
+
+  <form enctype="multipart/form-data" action="addimages.php"
+    method="POST">
+
+    <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+
+    <table>
+      <tr>
+        <td>Image to upload</td>
+        <td><input name="userfile" type="file"></td>
+      </tr>
+      <td>
+        <td colspan="2"><input type="submit" name="submit" value="Upload File"></td>
+      </tr>
+    </table>
+  </form>
+
+  When you have finished adding photos, go and <a href="<?php echo 'itemdetails.php?id=' . $validid; ?>">see your item!</a>
+
+<?php
+
+  //based off a similar thing in new item not working, expecting this to not work
+  /*if(isset($_SESSION['USERNAME'])) {
+
+  } else {
+    $url = $config_basedir . "login.php?ref=images&id=" . $validid;
+    redirect($url);
+  }*/
+
+  //TODO: replace
+  //$theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
+    //$validid . ";");
+  //$theitemresult = mysqli_query($db, $theitemsql);
+
+  //prep stmt stage 1
+  $theitemsql = $db->prepare("SELECT user_id FROM items WHERE id=?;");
+  //prep stmt stage 2
+  $theitemsql->bind_param("i", $validid);
+  $theitemsql->execute();
+  //get result
+  $theitemresult = $theitemsql->get_result();
+
   $theitemrow = mysqli_fetch_assoc($theitemresult);
 
   if($theitemrow['user_id'] != $_SESSION['USERID']) {
-    $url = $config_basedir);
+    $url = $config_basedir . "index.php";
     redirect($url);
   }
 
   //the original of this function made me want to scream
-  if($_POST['submit']) {
+  if(isset($_POST['submit']) && $_POST['submit']) {
     if($_FILES['userfile']['name'] == '') {
-      $url = $config_basedir. "addimages.php?error=nophoto");
+      $url = $config_basedir . "addimages.php?error=nophoto";
       redirect($url);
     } elseif($_FILES['userfile']['size'] == 0) {
-      $url = $config_basedir. "addimages.php?error=photoprob");
+      $url = $config_basedir . "addimages.php?error=photoprob";
       redirect($url);
     } elseif($_FILES['userfile']['size'] > $MAX_FILE_SIZE) {
-      $url = $config_basedir. "addimages.php?error=large");
+      $url = $config_basedir . "addimages.php?error=large";
       redirect($url);
     } elseif(!getimagesize($_FILES['userfile']['tmp_name'])) {
-      $url = $config_basedir. "addimages.php?error=invalid");
+      $url = $config_basedir . "addimages.php?error=invalid";
       redirect($url);
     } else {
       $uploaddir = ""; //TODO: DIRECTORY FOR IMAGE UPLOAD ON WEB SERVER
       $uploadfile = $uploaddir . $_FILES['userfile']['name'];
 
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
+        //TODO: replace
         $inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
           "VALUES(" . $validid . ", '" . $_FILES['userfile']['name'] . "')");
         mysqli_query($db, $inssql);
 
-        $url = $config_basedir. "addimages.php?id=" . $validid);
+        $url = $config_basedir. "addimages.php?id=" . $validid;
         redirect($url);
       } else {
         echo "There was a problem uploading your file.<br>";
@@ -60,6 +101,7 @@
   } else {
     require("header.php");
 
+    //TODO: replace
     $imagessql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
       $validid . ";");
     $imagesresult = mysqli_query($db, $imagessql);
@@ -82,47 +124,28 @@
       echo "</table>";
     }
 
-    switch($_GET['error']) {
-      case "empty":
-        echo "You did not select anything.";
-        break;
-      case "nophoto":
-        echo "You did not select a photo to upload.";
-        break;
-      case "photoprob":
-        echo "There appears to be a problem with the photo you are uploading.";
-        break;
-      case "large":
-        echo "The photo you selected is too large.";
-        break;
-      case "invalid":
-        echo "The photo you selected is not a valid image file";
-        break;
-      default:
-        echo "Unknown error.";
-        break;
+    if(isset($_GET['error'])) {
+      switch($_GET['error']) {
+        case "empty":
+          echo "You did not select anything.";
+          break;
+        case "nophoto":
+          echo "You did not select a photo to upload.";
+          break;
+        case "photoprob":
+          echo "There appears to be a problem with the photo you are uploading.";
+          break;
+        case "large":
+          echo "The photo you selected is too large.";
+          break;
+        case "invalid":
+          echo "The photo you selected is not a valid image file";
+          break;
+        default:
+          echo "Unknown error.";
+          break;
+      }
     }
-?>
-
-<form enctype="multipart/form-data" action="addimages.php"
-  method="POST">
-
-  <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
-
-  <table>
-    <tr>
-      <td>Image to upload</td>
-      <td><input name="userfile" type="file"></td>
-    </tr>
-    <td>
-      <td colspan="2"><input type="submit" name="submit" value="Upload File"></td>
-    </tr>
-  </table>
-</form>
-
-When you have finished adding photos, go and <a href="<?php echo 'itemdetails.php?id=' . $validid; ?>">see your item!</a>
-
-<?php
-}
-require("footer.php");
+  }
+  require("footer.php");
 ?>

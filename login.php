@@ -78,25 +78,25 @@ Don't have an account? Go and <a href="register.php">Register!</a>
         if(isset($_GET['ref]'])) {
           switch($_GET['ref']) {
             case "addbid":
-              $url = $config_basedir . "/itemdetails.php?id=" . $_GET['id'] . "#bidbox");
+              $url = $config_basedir . "/itemdetails.php?id=" . $_GET['id'] . "#bidbox";
               redirect($url);
               break;
             case "newitem":
-              $url = $config_basedir . "/newitem.php");
+              $url = $config_basedir . "/newitem.php";
               redirect($url);
               break;
             case "images":
-              $url = $config_basedir . "/addimages.php?id=" . $_GET['id']);
+              $url = $config_basedir . "/addimages.php?id=" . $_GET['id'];
               redirect($url);
               break;
             default:
-              $url = $config_basedir . "/index.php");
+              $url = $config_basedir . "/index.php";
               redirect($url);
               break;
           }
         }
 
-        $url = $config_basedir . "/index.php");
+        $url = $config_basedir . "/index.php";
         redirect($url);
       } else {
         //require("header.php");
@@ -104,7 +104,7 @@ Don't have an account? Go and <a href="register.php">Register!</a>
           //"the account.<br> Please click on the link in the email to continue.";
       }
     } else {
-        $url = $config_basedir . "/login.php?error=1");
+        $url = $config_basedir . "/login.php?error=1";
         redirect($url);
     }
   }

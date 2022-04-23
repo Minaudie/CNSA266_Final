@@ -32,9 +32,18 @@
   <form action="newitem.php" method="POST">
     <table>
       <?php
-        //TODO: replace
-        $catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat;");
-        $catresult = mysqli_query($db, $catsql);
+        //replaced by prepared statement
+        //$catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat;");
+        //$catresult = mysqli_query($db, $catsql);
+
+        //prepared statement stage 1
+        $catsql = $db->prepare("SELECT * FROM categories ORDER BY cat;");
+        //prepared statement stage 2
+        //no bind_param as there are no variables to insert
+        $catsql->execute();
+        //getting result
+        $catresult = $catsql->get_result();
+
       ?>
       <tr>
         <td>Category</td>
@@ -62,62 +71,12 @@
       <tr>
         <td>Ending Date</td>
         <td>
-          <table>
-            <tr>
-              <td>Month</td>
-              <td>Day</td>
-              <td>Year</td>
-              <td>Hour</td>
-              <td>Minute</td>
-            </tr>
-            <tr>
-              <td>
-                <select name="month">
-                  <?php
-                    for($i=1;$i<=12;$i++) {
-                      echo "<option>" . $i . "</option>";
-                    }
-                  ?>
-                </select>
-              </td>
-              <td>
-                <select name="day">
-                  <?php
-                    for($i=1;$i<=31;$i++) {
-                      echo "<option>" . $i . "</option>";
-                    }
-                  ?>
-                </select>
-              </td>
-              <td>
-                <select name="year">
-                  <?php
-                    for($i=2022;$i<=2030;$i++) {
-                      echo "<option>" . $i . "</option>";
-                    }
-                  ?>
-                </select>
-              </td>
-              <td>
-                <select name="hour">
-                  <?php
-                    for($i=0;$i<=23;$i++) {
-                      echo "<option>" . sprintf("%02d", $i) . "</option>";
-                    }
-                  ?>
-                </select>
-              </td>
-              <td>
-                <select name="minute">
-                  <?php
-                    for($i=0;$i<=59;$i++) {
-                      echo "<option>" . sprintf("%02d", $i) . "</option>";
-                    }
-                  ?>
-                </select>
-              </td>
-            </tr>
-          </table>
+          <?php
+            //attempting to set min date to today + 1, not working
+            $date = new DateTime('1 days');
+            $dtMin = $date->format('d-m-Y\TH:i:s');
+            echo '<input type="datetime-local" name="dateTimeSelect" min="$dtMin">';
+          ?>
         </td>
       </tr>
       <tr>
@@ -139,19 +98,12 @@
   if(isset($_SESSION)) {
 
   } else {
-    $url = $config_basedir . "login.php?ref=newitem");
+    $url = $config_basedir . "login.php?ref=newitem";
     redirect($url);
   }
 
   //will check left and if false, will not check right
   if(isset($_POST['submit']) && $_POST['submit']) {
-    $validdate = checkdate($_POST['day'], $_POST['month'], $_POST['year']);
-
-    if($validdate) {
-      $concatdate = $_POST['year'] . "-" . sprintf("%02d", $_POST['day']) .
-        "-" . sprintf("%02d", $_POST['month']) . " " . $_POST['hour'] .
-        ":" . $_POST['minute'] . ":00";
-
       //replaced by prepared statement
       /*$itemsql = mysqli_real_escape_string($db, "INSERT INTO" . " items(user_id, cat_id," .
         " name, startingprice, " . "description, dateends)" . "VALUES(" .
@@ -164,6 +116,7 @@
       $itemname = $_POST['name'];
       $itemprice = $_POST['price'];
       $itemdesc = $_POST['description'];
+      $date = $_POST['dateTimeSelect'];
 
       //prep stmt stage 1
       $itemsql = $db->prepare(
@@ -171,19 +124,20 @@
         " VALUES(?,?,?,?,?,?);");
       //prep stmt stage 2
       $itemsql->bind_param("iisdss", $userid, $category, $itemname, $itemprice,
-        $itemdesc, $concatdate);
+        $itemdesc, $date);
       $itemsql->execute();
       //get the id of the previously inserted record
       $item_id = $itemsql->insert_id;
 
       //mysqli_query($db, $itemsql);
 
-      $url = $config_basedir . "addimages.php?id=" . $item_id);
+      //if successful, go to add images page
+      $url = $config_basedir . "addimages.php?id=" . $item_id;
       redirect($url);
-    } else {
-      $url = $config_basedir . "newitem.php?error=date");
-      redirect($url);
-    }
+    //} else {
+      //$url = $config_basedir . "newitem.php?error=date";
+      //redirect($url);
+    //}
   }
 
 require("footer.php");

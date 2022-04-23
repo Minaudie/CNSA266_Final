@@ -6,6 +6,6 @@
   session_destroy();
 
   require_once("config.php");
-  $url = $config_basedir . "index.php");
+  $url = $config_basedir . "index.php";
   redirect($url);
 ?>
