@@ -21,7 +21,7 @@
 	}
 
 	$result = mysqli_query($db, $sql);
-	
+
 	$numrows = mysqli_num_rows($result);
 
 	//this line doesn't show up?
@@ -54,8 +54,8 @@
 			if($imagenumrows == 0) {
 				echo "<td>No image</td>";
 			} else {
-				$imagerow = mysqli_fetch_assoc($imageresult);
-				echo "<td><img src='./images/" . $imagerow['name'] .
+				$imagenumrows = mysqli_fetch_assoc($imageresult);
+				echo "<td><img src='" . $config_basedir . "Images/" . $imagenumrows['name'] .
 					"' width='100'></td>";
 			}
 

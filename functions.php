@@ -11,7 +11,7 @@
 
 	function pf_validate_number($value, $function, $redirect) {
 		$error = 0;
-		if(isset($value) == TRUE) {
+		if(isset($value)) {
 			if(is_numeric($value) == FALSE) {
 				$error = 1;
 			}

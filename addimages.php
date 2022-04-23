@@ -12,11 +12,14 @@
 	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
 	//mysql_select_db($dbdatabase, $db);
 
-  if(isset($_GET['id'])) {
-    $validid = 10;//pf_validate_number($_GET['id'], "redirect", "index.php");
+  //need both post and get parts
+  if(isset($_POST['id'])) {
+    //TODO: fix this.
+    $validid = $_POST['id'];//pf_validate_number($_GET['id'], "redirect", "index.php");
+  } elseif(isset($_GET['id'])) {
+    $validid = $_GET['id'];
   } else {
     $url = $config_basedir . "index.php";
-    //redirect($url);
   }
 
   require_once("header.php");
@@ -26,8 +29,12 @@
   <form enctype="multipart/form-data" action="addimages.php"
     method="POST">
 
-    <!--<input type="hidden" name="MAX_FILE_SIZE" value="3000000">
-     Did not work -->
+    <!--Did not work
+    <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
+    -->
+
+    <!-- used to keep item ID after submit -->
+    <input type="hidden" name="id" value="<?php echo $validid ?>">
 
     <table>
       <tr>
@@ -41,7 +48,7 @@
   </form>
 
   When you have finished adding photos, go and
-    <a href="<?php //echo 'itemdetails.php?id=' . $validid; ?>">see your item!</a>
+    <a href="<?php echo 'itemdetails.php?id=' . $validid; ?>">see your item!</a>
 
 <?php
 
@@ -58,6 +65,7 @@
     //$validid . ";");
   //$theitemresult = mysqli_query($db, $theitemsql);
 
+  //find user ID for item id from GET
   //prep stmt stage 1
   $theitemsql = $db->prepare("SELECT user_id FROM items WHERE id=?;");
   //prep stmt stage 2
@@ -73,6 +81,7 @@
     $url = $config_basedir . "index.php";
     redirect($url);
   }*/
+  $theitemsql->close();
 
   //the original of this function made me want to scream
   if(isset($_POST['submit']) && $_POST['submit']) {
@@ -89,9 +98,12 @@
       $url = $config_basedir . "addimages.php?error=invalid";
       redirect($url);
     } else {
+      //file will be uploaded to C:\CNSA266_Final\Images\<itemid>-<filename+ext>
       $uploaddir = "C:\CNSA266_Final\Images\\";
-      $uploadfile = $uploaddir . $_FILES['userfile']['name'];
+      $uploadfile = $uploaddir . $validid . "-" . $_FILES['userfile']['name'];
 
+      //move_uploaded_file will check if first param is valid upload file,
+      //then move it to second param
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
         //replaced with prepared statement
         /*$inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
@@ -101,9 +113,11 @@
         //prep stmt stage 1
         $inssql = $db->prepare("INSERT INTO images(item_id, name) VALUES(?,?);");
         //prep stmt stage 2
-        $inssql->bind_param("is", $validid, $_FILES['userfile']['name']);
+        $filename = $validid . "-" . $_FILES['userfile']['name'];
+        $inssql->bind_param("is", $validid, $filename);
         $inssql->execute();
         //no result needed
+        $inssql->close();
 
         $url = $config_basedir. "addimages.php?id=" . $validid;
         redirect($url);
@@ -132,16 +146,18 @@
       echo "No images.";
     } else {
       echo "<table>";
-      while($imagesrow = mysqli_fetch_assoc($imagesresult)) {
+      while($imagesnumrows = mysqli_fetch_assoc($imagesresult)) {
         echo "<tr>";
-        echo "<td><img src='" . $config_basedir . "/images/" . $imagesrow['name'] .
+        echo "<td><img src='" . $config_basedir . "/Images/" . $imagesnumrows['name'] . 
           "' width='100'></td>";
-        echo "<td>[<a href='deleteimage.php?image_id=" . $imagesrow['id'] .
+        echo "<td>[<a href='deleteimage.php?image_id=" . $imagesnumrows['id'] .
           "&item_id=" . $validid . "'>delete</a>]</td>";
         echo "</tr>";
       }
       echo "</table>";
     }
+
+    $imagessql->close();
 
     if(isset($_GET['error'])) {
       switch($_GET['error']) {
