@@ -46,8 +46,10 @@
     $imagerow = mysqli_fetch_assoc($imageresult);
 
     //deletes file given as parameter
-    //needs to be direct file path 
+    //needs to be direct file path
     unlink("C:\CNSA266_Final\Images\\" . $imagerow['name']);
+
+    $imagesql->close();
 
     //replaced with prep stmt
     /*$delsql = mysqli_real_escape_string($db, "DELETE FROM images WHERE id=" .
@@ -57,6 +59,7 @@
     $delsql = $db->prepare("DELETE FROM images WHERE id=?;");
     $delsql->bind_param("i", $validimageid);
     $delsql->execute();
+    $delsql->close();
 
     //redirect to add images
     $url = $config_basedir . "addimages.php?id=" . $validitemid;
