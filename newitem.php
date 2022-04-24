@@ -71,13 +71,10 @@
       <tr>
         <td>Ending Date</td>
         <td>
-          <?php
-            //attempting to set min date to today + 1, not working
-            //TODO: set min date value or check min date later
-            $date = new DateTime('1 days');
-            $dtMin = $date->format('d-m-Y\TH:i:s');
-            echo '<input type="datetime-local" name="dateTimeSelect" min="$dtMin">';
-          ?>
+          <input type="datetime-local" name="dateTimeSelect"
+            min="<?php
+              $md = date('Y-m-d\TH:i');
+              echo $md; ?>">
         </td>
       </tr>
       <tr>
@@ -103,41 +100,37 @@
 
   //will check left and if false, will not check right
   if(isset($_POST['submit']) && $_POST['submit']) {
-      //replaced by prepared statement
-      /*$itemsql = mysqli_real_escape_string($db, "INSERT INTO" . " items(user_id, cat_id," .
-        " name, startingprice, " . "description, dateends)" . "VALUES(" .
-        $_SESSION['USERID'] . ", '" . $_POST['cat'] . ", '" .
-        addslashes($_POST['name']) . "', " . $_POST['price'] . ", '" .
-        addslashes($_POST['description']) . "', '" . $concatdate . "');");*/
+    //replaced by prepared statement
+    /*$itemsql = mysqli_real_escape_string($db, "INSERT INTO" . " items(user_id, cat_id," .
+      " name, startingprice, " . "description, dateends)" . "VALUES(" .
+      $_SESSION['USERID'] . ", '" . $_POST['cat'] . ", '" .
+      addslashes($_POST['name']) . "', " . $_POST['price'] . ", '" .
+      addslashes($_POST['description']) . "', '" . $concatdate . "');");*/
 
-      $userid = $_SESSION['USERID'];
-      $category = $_POST['cat'];
-      $itemname = $_POST['name'];
-      $itemprice = $_POST['price'];
-      $itemdesc = $_POST['description'];
-      $date = $_POST['dateTimeSelect'];
+    $userid = $_SESSION['USERID'];
+    $category = $_POST['cat'];
+    $itemname = $_POST['name'];
+    $itemprice = $_POST['price'];
+    $itemdesc = $_POST['description'];
+    $date = $_POST['dateTimeSelect'];
 
-      //prep stmt stage 1
-      $itemsql = $db->prepare(
-        "INSERT INTO items(user_id, cat_id, name, startingprice, description, dateends)" .
-        " VALUES(?,?,?,?,?,?);");
-      //prep stmt stage 2
-      $itemsql->bind_param("iisdss", $userid, $category, $itemname, $itemprice,
-        $itemdesc, $date);
-      $itemsql->execute();
-      //get the id of the previously inserted record
-      $item_id = $itemsql->insert_id;
+    //prep stmt stage 1
+    $itemsql = $db->prepare(
+      "INSERT INTO items(user_id, cat_id, name, startingprice, description, dateends,endnotified)" .
+      " VALUES(?,?,?,?,?,?,0);");
+    //prep stmt stage 2
+    $itemsql->bind_param("iisdss", $userid, $category, $itemname, $itemprice,
+      $itemdesc, $date);
+    $itemsql->execute();
+    //get the id of the previously inserted record
+    $item_id = $itemsql->insert_id;
 
-      //mysqli_query($db, $itemsql);
+    //mysqli_query($db, $itemsql);
 
-      //if successful, go to add images page
-      $url = $config_basedir . "addimages.php?id=" . $item_id;
-      redirect($url);
-    //} else {
-      //$url = $config_basedir . "newitem.php?error=date";
-      //redirect($url);
-    //}
+    //if successful, go to add images page
+    $url = $config_basedir . "addimages.php?id=" . $item_id;
+    redirect($url);
   }
 
-require("footer.php");
+  require("footer.php");
 ?>

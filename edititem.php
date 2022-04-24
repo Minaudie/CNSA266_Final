@@ -21,6 +21,28 @@
     redirect($url);
   }
 
+  //get information from database
+  $infosql = $db->prepare("SELECT * FROM items WHERE id=?;");
+  $infosql->bind_param("i", $validid);
+  $infosql->execute();
+  $inforesult = $infosql->get_result();
+  $infoassoc = mysqli_fetch_assoc($inforesult);
+
+  //determine price to be show: aka highest bid or startingprice
+  $checkbidsql = $db->prepare("SELECT item_id, MAX(amount) AS highestbid, COUNT(id)" .
+    " AS number_of_bids FROM bids WHERE item_id=? GROUP BY item_id;");
+  $checkbidsql->bind_param("i", $validid);
+  $checkbidsql->execute();
+  $checkbidresult = $checkbidsql->get_result();
+  $checkbidnumrows = mysqli_num_rows($checkbidresult);
+  $price = 0;
+  if($checkbidnumrows == 0) { //no bids
+    $price = $infoassoc['startingprice'];
+  } else { //get highest bid
+    $checkbidrow = mysqli_fetch_assoc($checkbidresult);
+    $price = $checkbidrow['highestbid'];
+  }
+
   require_once("header.php");
 ?>
   <h1>Edit Existing Item</h1>
@@ -38,17 +60,12 @@
         }
       }
     ?>
-  </p><!-- TODO change action -->
-  <form action="newitem.php" method="POST">
+  </p>
+  <form action="edititem.php" method="POST">
+    <input type="hidden" name="id" value="<?php echo $validid; ?>">
     <table>
       <?php
-        //replaced by prepared statement
-        //$catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat;");
-        //$catresult = mysqli_query($db, $catsql);
-
-        //prepared statement stage 1
         $catsql = $db->prepare("SELECT * FROM categories ORDER BY cat;");
-        //prepared statement stage 2
         //no bind_param as there are no variables to insert
         $catsql->execute();
         //getting result
@@ -61,8 +78,12 @@
           <select name="cat">
             <?php
               while($catrow = mysqli_fetch_assoc($catresult)) {
-                echo "<option value='" . $catrow['id'] . "'>" . $catrow['cat'] .
-                  "</option>";
+                echo "<option value='" . $catrow['id'] . "' ";
+                //set up default selection based on item's category
+                if($infoassoc['cat_id'] == $catrow['id']) {
+                  echo "selected";
+                }
+                echo ">" . $catrow['cat'] . "</option>";
               }
             ?>
           </select>
@@ -70,36 +91,38 @@
       </tr>
       <tr>
         <td>Item name</td>
-        <td><input type="text" name="name"></td>
+        <td><input type="text" name="name"
+              value="<?php echo $infoassoc['name']; ?>"></td>
       </tr>
       <tr>
         <td>Item Description</td>
-        <td>
-          <textarea name="description" rows="10" cols="50"></textarea>
+        <td><!-- in one line otherwise it adds extra white space -->
+          <textarea name="description" rows="10" cols="50"><?php echo $infoassoc['description']; ?></textarea>
         </td>
       </tr>
       <tr>
         <td>Ending Date</td>
         <td>
-          <?php
-            //attempting to set min date to today + 1, not working
-            //TODO: set min date value or check min date later
-            $date = new DateTime('1 days');
-            $dtMin = $date->format('d-m-Y\TH:i:s');
-            echo '<input type="datetime-local" name="dateTimeSelect" min="$dtMin">';
-          ?>
+          <input type="datetime-local" name="dateTimeSelect"
+            value="<?php $ed = new DateTime($infoassoc['dateends']);
+              $enddate = $ed->format('Y-m-d\TH:i');
+              echo $enddate; ?>"
+            min="<?php $md = new DateTime('+1 day');
+              $mindate = $md->format('Y-m-d\TH:i');
+              echo $mindate; ?>">
         </td>
       </tr>
       <tr>
         <td>Price</td>
         <td>
           <?php echo $config_currency; ?>
-          <input type="text" name="price">
+          <input type="text" name="price"
+            value="<?php echo $price; ?>">
         </td>
       </tr>
       <tr>
         <td></td>
-        <td><input type="submit" name="submit" value="Edit Images"></td>
+        <td><input type="submit" name="submit" value="Save"></td>
       </tr>
     </table>
   </form>
@@ -113,12 +136,6 @@
 
   //will check left and if false, will not check right
   if(isset($_POST['submit']) && $_POST['submit']) {
-      //replaced by prepared statement
-      /*$itemsql = mysqli_real_escape_string($db, "INSERT INTO" . " items(user_id, cat_id," .
-        " name, startingprice, " . "description, dateends)" . "VALUES(" .
-        $_SESSION['USERID'] . ", '" . $_POST['cat'] . ", '" .
-        addslashes($_POST['name']) . "', " . $_POST['price'] . ", '" .
-        addslashes($_POST['description']) . "', '" . $concatdate . "');");*/
 
       $userid = $_SESSION['USERID'];
       $category = $_POST['cat'];
@@ -127,29 +144,22 @@
       $itemdesc = $_POST['description'];
       $date = $_POST['dateTimeSelect'];
 
-      //TODO: change to update
-      //prep stmt stage 1
+      //update item information
       $itemsql = $db->prepare(
-        "INSERT INTO items(user_id, cat_id, name, startingprice, description, dateends)" .
-        " VALUES(?,?,?,?,?,?);");
-      //prep stmt stage 2
-      $itemsql->bind_param("iisdss", $userid, $category, $itemname, $itemprice,
-        $itemdesc, $date);
+        "UPDATE items SET cat_id=?, name=?, startingprice=?, description=?, dateends=? " .
+        "WHERE id=?;");
+      $itemsql->bind_param("isdssi", $category, $itemname, $itemprice, $itemdesc, $date, $validid);
       $itemsql->execute();
-      //get the id of the previously inserted record
-      $item_id = $itemsql->insert_id;
 
-      //mysqli_query($db, $itemsql);
-
-      //TODO: add images to this page?
       //if successful, go to add images page
-      $url = $config_basedir . "addimages.php?id=" . $item_id;
+      $url = $config_basedir . "addimages.php?id=" . $validid;
+      $itemsql->close();
       redirect($url);
-    //} else {
-      //$url = $config_basedir . "newitem.php?error=date";
-      //redirect($url);
-    //}
   }
 
-require("footer.php");
+  $infosql->close();
+  $checkbidsql->close();
+  $catsql->close();
+
+  require("footer.php");
 ?>
