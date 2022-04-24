@@ -12,9 +12,16 @@
 	//mysql_select_db($dbdatabase, $db);
 
 	//TODO: possible change to $_REQUEST
-	if(isset($_POST['id'])) {
+	/*if(isset($_POST['id'])) {
     $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
   } elseif(isset($_GET['id'])) {
+    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
+  } else {
+    $url = $config_basedir . "index.php";
+    redirect($url);
+  }*/
+
+  if(isset($_REQUEST['id'])) {
     $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
   } else {
     $url = $config_basedir . "index.php";

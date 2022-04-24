@@ -57,64 +57,63 @@ site, fill in the form below.
 
 <?php
 
-  if(isset($_POST['submit'])) {
-    if($_POST['submit']) {
-      if($_POST['password1'] == $_POST['password2']) {
+  if(isset($_POST['submit']) && $_POST['submit']) {
+    if($_POST['password1'] == $_POST['password2']) {
 
-        $username = $_POST['username'];
-        $password1 = $_POST['password1'];
-        $email = $_POST['email'];
+      $username = $_POST['username'];
+      $password1 = $_POST['password1'];
+      $email = $_POST['email'];
 
-        //removed in favor of prepared statements
-        //was having a big issue with the variable in the statement
-        //$checksql = mysqli_real_escape_string($db, "SELECT * FROM users WHERE username = " .
-          //$username . ";");
-        //$checkresult = mysqli_query($db, $checksql);
+      //removed in favor of prepared statements
+      //was having a big issue with the variable in the statement
+      //$checksql = mysqli_real_escape_string($db, "SELECT * FROM users WHERE username = " .
+        //$username . ";");
+      //$checkresult = mysqli_query($db, $checksql);
 
-        //prepared statement stage 1
-        $checksql = $db->prepare("SELECT * FROM users WHERE username = ?");
-        //prepared statement stage 2, s means string
-        $checksql->bind_param("s", $username);
-        $checksql->execute();
-        //getting result of prepared statement
-        $checkresult = $checksql->get_result();
+      //prepared statement stage 1
+      $checksql = $db->prepare("SELECT * FROM users WHERE username = ?");
+      //prepared statement stage 2, s means string
+      $checksql->bind_param("s", $username);
+      $checksql->execute();
+      //getting result of prepared statement
+      $checkresult = $checksql->get_result();
 
-        $checknumrows = mysqli_num_rows($checkresult);
+      $checknumrows = mysqli_num_rows($checkresult);
 
-        $randomstring = "";
-        if($checknumrows == 1) {
-          $url = $config_basedir . "register.php?error=taken";
-          redirect($url);
-        } else {
-          for($i=0; $i < 16; $i++) {
-            $randomstring .= chr(mt_rand(32,126));
-          }
+      $randomstring = "";
+      if($checknumrows == 1) {
+        $url = $config_basedir . "register.php?error=taken";
+        redirect($url);
+      } else {
+        for($i=0; $i < 16; $i++) {
+          $randomstring .= chr(mt_rand(32,126));
+        }
 
-          $verifyurl = "http://127.0.0.1/verify.php";
-          $verifystring = urlencode($randomstring);
-          $verifyemail = urlencode($email);
-          //have this line previously, changed variable name below
-          //$validusername = $_POST['username'];
+        $verifyurl = "http://127.0.0.1/verify.php";
+        $verifystring = urlencode($randomstring);
+        $verifyemail = urlencode($email);
+        //have this line previously, changed variable name below
+        //$validusername = $_POST['username'];
 
-          //TODO: TEMPORARY LOCATION
-          //changed active to 1 to bypass verify req.
-          $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
-            " VALUES('" . $username . "', '" . $password1 .
-            "', '" . $email . "', '" . addslashes($randomstring) . "', 1);";
-          mysqli_query($db, $sql);
-          $url = $config_basedir . "login.php";
-          redirect($url);
+        //TODO: TEMPORARY LOCATION
+        //changed active to 1 to bypass verify req.
+        $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
+          " VALUES('" . $username . "', '" . $password1 .
+          "', '" . $email . "', '" . addslashes($randomstring) . "', 1);";
+        mysqli_query($db, $sql);
+        $url = $config_basedir . "login.php";
+        redirect($url);
 
-          //default php way of doing email, requires local mailserver
-          //replaced with PHPMailer library
-        /*  $mail_body=<<<_MAIL_
-          Hi $username,
-          Please click on the following link to verify your new account:
-          $verifyurl?email=$verifyemail&verify=$verifystring
-          _MAIL_;
+        //default php way of doing email, requires local mailserver
+        //replaced with PHPMailer library
+      /*  $mail_body=<<<_MAIL_
+        Hi $username,
+        Please click on the following link to verify your new account:
+        $verifyurl?email=$verifyemail&verify=$verifystring
+        _MAIL_;
 
-          mail($email, $config_forumsname . " User verification", $mail_body);
-          */
+        mail($email, $config_forumsname . " User verification", $mail_body);
+        */
 
 /*
 2022-04-22 15:21:30 SERVER -> CLIENT: 535-5.7.8 Username and Password not accepted.
@@ -127,88 +126,87 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
 */
 
 
-          //TODO: set up external html file to bring in for email body
-          //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
+        //TODO: set up external html file to bring in for email body
+        //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
 /*
-          // *** PHPMailer *** //
-          //set time zone for php
-          date_default_timezone_set('Etc/UTC');
+        // *** PHPMailer *** //
+        //set time zone for php
+        date_default_timezone_set('Etc/UTC');
 
-          //create new phpmailer object. Passing true as param enables exceptions
-          $mail = new PHPMailer(TRUE);
-          try {
-            //set phpmailer to SMTP
-            $mail->isSMTP();
-            //smtp debugging
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
-            //set hostname
-            $mail->Host = 'smtp.gmail.com';
+        //create new phpmailer object. Passing true as param enables exceptions
+        $mail = new PHPMailer(TRUE);
+        try {
+          //set phpmailer to SMTP
+          $mail->isSMTP();
+          //smtp debugging
+          $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+          //set hostname
+          $mail->Host = 'smtp.gmail.com';
 
-            $mail->SMTPSecure = 'TLS';
-            //set port num, 465 TLS, 587 SMTP + STARTTLS
-            $mail->Port = 587;
-            //ecryption mechanism
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-            //enable smtp authentication
-            $mail->SMTPAuth = TRUE;
+          $mail->SMTPSecure = 'TLS';
+          //set port num, 465 TLS, 587 SMTP + STARTTLS
+          $mail->Port = 587;
+          //ecryption mechanism
+          $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+          //enable smtp authentication
+          $mail->SMTPAuth = TRUE;
 
-            //smtp username and password
-            $mail->username="auctionsite.cnsa@gmail.com";
-            $mail->password=$dbpassword;
+          //smtp username and password
+          $mail->username="auctionsite.cnsa@gmail.com";
+          $mail->password=$dbpassword;
 
-            //mail sender, with gmail has to be same as username
-            $mail->setFrom('auctionsite.cnsa@gmail.com', 'Auction Site');
-            //recipient
-            $mail->addAddress($email, $username);
-            //subject
-            $mail->Subject = 'Verify Account';
-            //set email body content type to HTML
-            $mail->isHTML(TRUE);
-            //set mail body, HTML
-            $mail->Body = "Hi $username,<br>" .
-              "Please click on the following link to verify your new account:<br>" .
-              "$verifyurl?email=$verifyemail&verify=$verifystring";
-            //alt body, no HTML
-            $mail->AltBody = "Hi $username, Please click on the following link " .
-              "to verify your new account: $verifyurl?email=$verifyemail&verify=$verifystring";
+          //mail sender, with gmail has to be same as username
+          $mail->setFrom('auctionsite.cnsa@gmail.com', 'Auction Site');
+          //recipient
+          $mail->addAddress($email, $username);
+          //subject
+          $mail->Subject = 'Verify Account';
+          //set email body content type to HTML
+          $mail->isHTML(TRUE);
+          //set mail body, HTML
+          $mail->Body = "Hi $username,<br>" .
+            "Please click on the following link to verify your new account:<br>" .
+            "$verifyurl?email=$verifyemail&verify=$verifystring";
+          //alt body, no HTML
+          $mail->AltBody = "Hi $username, Please click on the following link " .
+            "to verify your new account: $verifyurl?email=$verifyemail&verify=$verifystring";
 
-            //disable some ssl checks
-            $mail->SMTPOptions = array(
-              'ssl' => array(
-                'verify_peer' => true,
-                'verify_depth' => 3,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-              )
-            );
+          //disable some ssl checks
+          $mail->SMTPOptions = array(
+            'ssl' => array(
+              'verify_peer' => true,
+              'verify_depth' => 3,
+              'verify_peer_name' => false,
+              'allow_self_signed' => true
+            )
+          );
 
-            //send email
-            if(!$mail->send()) {
-              //phpmailer error
-              //TODO: turn off for final
-              echo $mail->ErrorInfo();
-            } else { //create account
-              //TODO: change to prepared statement, move before email
-              $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
-                " VALUES('" . $username . "', '" . $password1 .
-                "', '" . $email . "', '" . addslashes($randomstring) . "', 0);";
-              mysqli_query($db, $sql);
+          //send email
+          if(!$mail->send()) {
+            //phpmailer error
+            //TODO: turn off for final
+            echo $mail->ErrorInfo();
+          } else { //create account
+            //TODO: change to prepared statement, move before email
+            $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
+              " VALUES('" . $username . "', '" . $password1 .
+              "', '" . $email . "', '" . addslashes($randomstring) . "', 0);";
+            mysqli_query($db, $sql);
 
-              //require("header.php");
-              echo "A link has been emailed to the address you entered above.<br>" .
-                "Please follow the link in the email to validate your account.";
-            }
-
-          } catch (Exception $ex) {
-            //phpmailer exception
-            echo $ex->errorMessage();
+            //require("header.php");
+            echo "A link has been emailed to the address you entered above.<br>" .
+              "Please follow the link in the email to validate your account.";
           }
-*/
+
+        } catch (Exception $ex) {
+          //phpmailer exception
+          echo $ex->errorMessage();
         }
-      } else {
-        $url = $config_basedir . "register.php?error=pass";
-        redirect($url);
+*/
       }
+    } else {
+      $url = $config_basedir . "register.php?error=pass";
+      redirect($url);
     }
   } else {
 

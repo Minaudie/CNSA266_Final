@@ -3,9 +3,13 @@
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
-	//TODO: change to prepared statement
-	$catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat ASC;");
-	$catresult = mysqli_query($db, $catsql);
+	//replaced with prep stmt 
+	/*$catsql = mysqli_real_escape_string($db, "SELECT * FROM categories ORDER BY cat ASC;");
+	$catresult = mysqli_query($db, $catsql);*/
+
+	$catsql = $db->prepare("SELECT * FROM categories ORDER BY cat ASC;");
+	$catsql->execute();
+	$catresult = $catsql->get_result();
 
 	echo "<h1>Categories</h1>";
 	echo "<ul>";

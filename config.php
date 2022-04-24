@@ -1,7 +1,6 @@
 <?php
 	//database information
-	//location of DB (will be IP addr)
-	//$dbhost = "192.168.32.140";
+	//location of database 
 	$dbhost = "localhost";
 
 	//user and password
@@ -14,7 +13,7 @@
 	$config_admin = "Miranda Dorosz";
 	$config_adminemail = "mdorosz202 AT stevenscollege DOT edu";
 
-	// location of files on web server (linux + apache)
+	// location of files on web server
 	$config_basedir = "http://localhost/";
 
 	// The currency used on the auction

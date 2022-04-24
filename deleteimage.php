@@ -11,7 +11,7 @@
 
   //TODO: possibly change to $_REQUEST
   //need both post and get parts
-  if(isset($_POST['image_id']) || isset($_POST['item_id'])) {
+  /*if(isset($_POST['image_id']) || isset($_POST['item_id'])) {
     $validimageid = pf_validate_number($_POST['image_id'], "redirect", $config_basedir);
     $validitemid = pf_validate_number($_POST['item_id'], "redirect", $config_basedir);
   } elseif(isset($_GET['image_id']) || isset($_POST['item_id'])) {
@@ -20,6 +20,14 @@
   } else {
     $url = $config_basedir . "index.php";
     //redirect($url);
+  }*/
+
+  if(isset($_REQUEST['iamge_id']) || isset($_REQUEST['item_id'])) {
+    $validimageid = pf_validate_number($_POST['image_id'], "redirect", $config_basedir);
+    $validitemid = pf_validate_number($_POST['item_id'], "redirect", $config_basedir);
+  } else {
+    $url = $config_basedir . "index.php";
+    //redirect($url); //TODO test
   }
 
 ?>

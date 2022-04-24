@@ -12,12 +12,8 @@
 	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
 	//mysql_select_db($dbdatabase, $db);
 
-  //TODO: possibly change to $_REQUEST
-  //need both post and get parts
-  if(isset($_POST['id'])) {
-    $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
-  } elseif(isset($_GET['id'])) {
-    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
+  if(isset($_REQUEST['id'])) {
+    $validid = pf_validate_number($_REQUEST['id'], "redirect", "index.php");
   } else {
     $url = $config_basedir . "index.php";
     redirect($url);

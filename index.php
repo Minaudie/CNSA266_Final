@@ -12,15 +12,21 @@
 
 	require("header.php");
 
-	//TODO: change to prepared statements
+	//if no category has been selected
 	if($validid == 0) {
-		$sql = mysqli_real_escape_string($db, "SELECT items.* FROM items WHERE dateends > NOW()");
+		//$sql = mysqli_real_escape_string($db, "SELECT items.* FROM items WHERE dateends > NOW()");
+		$sql = $db->prepare("SELECT * FROM items WHERE dateends > NOW();");
+		//no params to bind
 	} else {
-		$sql = mysqli_real_escape_string($db, "SELECT * FROM items WHERE dateends > NOW()" .
-			"AND cat_id = " .	$validid . ";");
+		//$sql = mysqli_real_escape_string($db, "SELECT * FROM items WHERE dateends > NOW()" .
+			//"AND cat_id = " .	$validid . ";");
+		$sql = $db->prepare("SELECT * FROM items WHERE dateends > NOW() AND cat_id=?;");
+		$sql->bind_param("i", $validid);
 	}
 
-	$result = mysqli_query($db, $sql);
+	//$result = mysqli_query($db, $sql);
+	$sql->execute();
+	$result = $sql->get_result();
 
 	$numrows = mysqli_num_rows($result);
 
@@ -44,10 +50,16 @@
 		while($row = mysqli_fetch_assoc($result)) {
 
 			//Image
-			//TODO: change to prepared statement
-			$imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id = " .
+			//replaced with prep stmt
+			/*$imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id = " .
 				$row['id'] . " LIMIT 1");
-			$imageresult = mysqli_query($db, $imagesql);
+			$imageresult = mysqli_query($db, $imagesql);*/
+
+			$imagesql = $db->prepare("SELECT * FROM images WHERE item_id=? LIMIT 1;");
+			$imagesql->bind_param("i", $row['id']);
+			$imagesql->execute();
+			$imageresult = $imagesql->get_result();
+
 			$imagenumrows = mysqli_num_rows($imageresult);
 
 			echo "<tr>";
@@ -73,11 +85,18 @@
 			echo "</td>";
 
 			//number of bids
-			//TODO: change to prepared statement
-			$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS highestbid," .
+			//replaced with prep stmt
+			/*$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS highestbid," .
 				" COUNT(id) AS numberofbids FROM bids WHERE item_id=" .
 				$row['id'] . " GROUP BY item_id;");
-			$bidresult = mysqli_query($db, $bidsql);
+			$bidresult = mysqli_query($db, $bidsql);*/
+
+			$bidsql = $db->prepare("SELECT item_id, MAX(amount) AS highestbid, " .
+				"COUNT(id) AS numberofbids FROM bids WHERE item_id=? GROUP BY item_id;");
+			$bidsql->bind_param("i", $row['id']);
+			$bidsql->execute();
+			$bidresult = $bidsql->get_result();
+
 			$bidrow = mysqli_fetch_assoc($bidresult);
 			$bidnumrows = mysqli_num_rows($bidresult);
 
@@ -101,6 +120,9 @@
 			echo "<td>" . date("D jS F Y g.iA", strtotime($row['dateends'])) . "</td>";
 			echo "</tr>";
 		}
+		$sql->close();
+		$imagesql->close();
+		$bidsql->close();
 	}
 
 	echo "</table>";

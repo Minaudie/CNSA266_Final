@@ -72,9 +72,9 @@
         <td>Ending Date</td>
         <td>
           <input type="datetime-local" name="dateTimeSelect"
-            min="<?php
-              $md = date('Y-m-d\TH:i');
-              echo $md; ?>">
+            min="<?php $md = new DateTime('+1 day');
+              $mindate = $md->format('Y-m-d\TH:i');
+              echo $mindate; ?>">
         </td>
       </tr>
       <tr>
