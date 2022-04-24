@@ -1,4 +1,5 @@
 <?php
+	//TODO: remove?
 	function pf_script_with_get($script) {
 		$page = $script;
 		$page = $page . "?";
@@ -9,6 +10,7 @@
 		return substr($page, 0, strlen($page)-1);
 	}
 
+	//checks if a number is numeric
 	function pf_validate_number($value, $function, $redirect) {
 		$error = 0;
 		if(isset($value)) {
@@ -33,6 +35,7 @@
 		return $final;
 	}
 
+	//page redirect function
 	function redirect($url) {
 		ob_start();
 		header("Location: " . $url);

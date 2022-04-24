@@ -12,14 +12,15 @@
 	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
 	//mysql_select_db($dbdatabase, $db);
 
+  //TODO: possibly change to $_REQUEST 
   //need both post and get parts
   if(isset($_POST['id'])) {
-    //TODO: fix this.
-    $validid = $_POST['id'];//pf_validate_number($_GET['id'], "redirect", "index.php");
+    $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
   } elseif(isset($_GET['id'])) {
-    $validid = $_GET['id'];
+    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
   } else {
     $url = $config_basedir . "index.php";
+    redirect($url);
   }
 
   require_once("header.php");
@@ -52,13 +53,11 @@
 
 <?php
 
-  //based off a similar thing in new item not working, expecting this to not work
-  /*if(isset($_SESSION['USERNAME'])) {
-
-  } else {
+  //TODO: test
+  if(isset($_SESSION['USERNAME']) == FALSE) {
     $url = $config_basedir . "login.php?ref=images&id=" . $validid;
     redirect($url);
-  }*/
+  }
 
   //replaced with prepared statement
   //$theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
@@ -76,7 +75,7 @@
 
   $theitemrow = mysqli_fetch_assoc($theitemresult);
 
-/* //broken
+/* //broken TODO: fix
   if($theitemrow['user_id'] != $_SESSION['USERID']) {
     $url = $config_basedir . "index.php";
     redirect($url);
@@ -148,7 +147,7 @@
       echo "<table>";
       while($imagesnumrows = mysqli_fetch_assoc($imagesresult)) {
         echo "<tr>";
-        echo "<td><img src='" . $config_basedir . "/Images/" . $imagesnumrows['name'] . 
+        echo "<td><img src='" . $config_basedir . "/Images/" . $imagesnumrows['name'] .
           "' width='100'></td>";
         echo "<td>[<a href='deleteimage.php?image_id=" . $imagesnumrows['id'] .
           "&item_id=" . $validid . "'>delete</a>]</td>";
