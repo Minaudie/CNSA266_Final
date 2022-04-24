@@ -3,6 +3,7 @@
   ini_set('session.save_path', 'C:/php/tmp');
   session_start();
 
+  $_SESSION = array();
   session_destroy();
 
   require_once("config.php");

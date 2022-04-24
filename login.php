@@ -89,6 +89,8 @@ Don't have an account? Go and <a href="register.php">Register!</a>
               $url = $config_basedir . "/addimages.php?id=" . $_GET['id'];
               redirect($url);
               break;
+            case "edititem":
+              $url = $config_basedir . "/edititem.php?id=" . $_GET['id'];
             default:
               $url = $config_basedir . "/index.php";
               redirect($url);

@@ -12,7 +12,7 @@
 	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
 	//mysql_select_db($dbdatabase, $db);
 
-  //TODO: possibly change to $_REQUEST 
+  //TODO: possibly change to $_REQUEST
   //need both post and get parts
   if(isset($_POST['id'])) {
     $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
@@ -53,7 +53,7 @@
 
 <?php
 
-  //TODO: test
+  //TODO: test ref
   if(isset($_SESSION['USERNAME']) == FALSE) {
     $url = $config_basedir . "login.php?ref=images&id=" . $validid;
     redirect($url);
@@ -75,11 +75,10 @@
 
   $theitemrow = mysqli_fetch_assoc($theitemresult);
 
-/* //broken TODO: fix
   if($theitemrow['user_id'] != $_SESSION['USERID']) {
     $url = $config_basedir . "index.php";
     redirect($url);
-  }*/
+  }
   $theitemsql->close();
 
   //the original of this function made me want to scream
