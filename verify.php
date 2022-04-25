@@ -28,7 +28,8 @@
       $sql->bind_param("i", $row['id']);
       $sql->execute();
 
-      echo "Your account has now been verified. You can now <a href='login.php>log in.</a>'"
+      echo "Your account has now been verified. You can now " .
+        "<a href='login.php'>log in.</a>";
     } else {
       echo "This account could not be verified.";
     }

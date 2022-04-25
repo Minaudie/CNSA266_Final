@@ -1,29 +1,30 @@
 <?php
-  //removed session start as it is called on header.php
-  //session_start();
-
   //PHPMailer - library for sending email via SMTP
   use PHPMailer\PHPMailer\PHPMailer;
   use PHPMailer\PHPMailer\Exception;
   use PHPMailer\PHPMailer\SMTP;
+  //League Google OAuth2
+  use PHPMailer\PHPMailer\OAuth;
+  use League\OAuth2\Client\Provider\Google;
+
+  //load dependencies from composer
+  require 'C:\Windows\System32\vendor\autoload.php';
 
   //Exception class, required
-  require "C:\phpmailer\src\Exception.php";
+  /*require "C:\phpmailer\src\Exception.php";
   //Main PHPMailer class, required
   require "C:\phpmailer\src\PHPMailer.php";
   //SMTP class, for if using SMTP, optional?
-  require "C:\phpmailer\src\SMTP.php";
+  require "C:\phpmailer\src\SMTP.php";*/
 
-  require("config.php");
+  require_once("config.php");
+  require_once("functions.php");
 
   mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
-	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
-	//mysql_select_db($dbdatabase, $db);
-
-  require("header.php");
+  require_once("header.php");
 ?>
 
 <h2>Register</h2>
@@ -64,12 +65,6 @@ site, fill in the form below.
       $password1 = $_POST['password1'];
       $email = $_POST['email'];
 
-      //removed in favor of prepared statements
-      //was having a big issue with the variable in the statement
-      //$checksql = mysqli_real_escape_string($db, "SELECT * FROM users WHERE username = " .
-        //$username . ";");
-      //$checkresult = mysqli_query($db, $checksql);
-
       //prepared statement stage 1
       $checksql = $db->prepare("SELECT * FROM users WHERE username = ?");
       //prepared statement stage 2, s means string
@@ -92,43 +87,19 @@ site, fill in the form below.
         $verifyurl = "http://127.0.0.1/verify.php";
         $verifystring = urlencode($randomstring);
         $verifyemail = urlencode($email);
-        //have this line previously, changed variable name below
-        //$validusername = $_POST['username'];
 
-        //TODO: TEMPORARY LOCATION
+        //TODO: TEMPORARY LOCATION + change to prep stmt
         //changed active to 1 to bypass verify req.
-        $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
+        /*$sql = "INSERT INTO users(username,password,email,verifystring,active)" .
           " VALUES('" . $username . "', '" . $password1 .
           "', '" . $email . "', '" . addslashes($randomstring) . "', 1);";
         mysqli_query($db, $sql);
         $url = $config_basedir . "login.php";
-        redirect($url);
-
-        //default php way of doing email, requires local mailserver
-        //replaced with PHPMailer library
-      /*  $mail_body=<<<_MAIL_
-        Hi $username,
-        Please click on the following link to verify your new account:
-        $verifyurl?email=$verifyemail&verify=$verifystring
-        _MAIL_;
-
-        mail($email, $config_forumsname . " User verification", $mail_body);
-        */
-
-/*
-2022-04-22 15:21:30 SERVER -> CLIENT: 535-5.7.8 Username and Password not accepted.
-Learn more at535 5.7.8 https://support.google.com/mail/?p=BadCredentials
-h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
-2022-04-22 15:21:30 SMTP ERROR: Password command failed: 535-5.7.8 Username and
-Password not accepted. Learn more at535 5.7.8
-https://support.google.com/mail/?p=BadCredentials
-h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
-*/
-
+        redirect($url);*/
 
         //TODO: set up external html file to bring in for email body
         //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
-/*
+
         // *** PHPMailer *** //
         //set time zone for php
         date_default_timezone_set('Etc/UTC');
@@ -143,13 +114,46 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
           //set hostname
           $mail->Host = 'smtp.gmail.com';
 
-          $mail->SMTPSecure = 'TLS';
+          //$mail->SMTPSecure = 'TLS';
           //set port num, 465 TLS, 587 SMTP + STARTTLS
-          $mail->Port = 587;
+          $mail->Port = 465;
           //ecryption mechanism
           $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
           //enable smtp authentication
           $mail->SMTPAuth = TRUE;
+          //set authtype
+          $mail->AuthType = 'XOAUTH2';
+
+          //option 1 in phpmailer example
+          $userName = 'auctionsite.cnsa@gmail.com';
+          $clientId= '493528140636-2c04e6nlu286sf0ie7t8ige6nn4v6t1e.apps.googleusercontent.com';
+          $clientSecret = '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';
+
+          //obtained by config and running get_oauth_token.php
+          //after setting up app in Google Dev console
+          $refreshToken = '1//0djcdQ2-pJfoLCgYIARAAGA0SNwF-L9IrTBEtIAihJHLygRGShOmq2sr4bl6SZCX5kIs3JpD73bCEfjlR9l7VaMgesZwtn7zLgi4';
+
+          //create new OAuth2 provider license
+          $provider = new Google(
+            [
+              'clientId' => $clientId,
+              'clientSecret' => $clientSecret,
+            ]
+          );
+
+          //pass OAuth provider instance to phpmailer
+          $mail->setOAuth(
+            new OAuth(
+              [
+                'provider' => $provider,
+                'clientId' => $clientId,
+                'clientSecret' => $clientSecret,
+                'refreshToken' => $refreshToken,
+                'userName' => $userName,
+              ]
+            )
+          );
+          //end option 1
 
           //smtp username and password
           $mail->username="auctionsite.cnsa@gmail.com";
@@ -188,10 +192,15 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
             echo $mail->ErrorInfo();
           } else { //create account
             //TODO: change to prepared statement, move before email
-            $sql = "INSERT INTO users(username,password,email,verifystring,active)" .
+            /*$sql = "INSERT INTO users(username,password,email,verifystring,active)" .
               " VALUES('" . $username . "', '" . $password1 .
               "', '" . $email . "', '" . addslashes($randomstring) . "', 0);";
-            mysqli_query($db, $sql);
+            mysqli_query($db, $sql);*/
+
+            $sql = $db->prepare("INSERT INTO users(username, password, email, verifystring,active)" .
+              " VALUES(?,?,?,?,0);");
+            $sql->bind_param("ssss", $username, $password1, $email, $randomstring);
+            $sql->execute();
 
             //require("header.php");
             echo "A link has been emailed to the address you entered above.<br>" .
@@ -202,7 +211,7 @@ h75-20020a379e4e000000b0069db8210ffbsm1015258qke.12 - gsmtp
           //phpmailer exception
           echo $ex->errorMessage();
         }
-*/
+
       }
     } else {
       $url = $config_basedir . "register.php?error=pass";
