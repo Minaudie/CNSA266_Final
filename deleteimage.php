@@ -22,9 +22,9 @@
     //redirect($url);
   }*/
 
-  if(isset($_REQUEST['iamge_id']) || isset($_REQUEST['item_id'])) {
-    $validimageid = pf_validate_number($_POST['image_id'], "redirect", $config_basedir);
-    $validitemid = pf_validate_number($_POST['item_id'], "redirect", $config_basedir);
+  if(isset($_REQUEST['image_id']) && isset($_REQUEST['item_id'])) {
+    $validimageid = pf_validate_number($_REQUEST['image_id'], "redirect", $config_basedir);
+    $validitemid = pf_validate_number($_REQUEST['item_id'], "redirect", $config_basedir);
   } else {
     $url = $config_basedir . "index.php";
     //redirect($url); //TODO test

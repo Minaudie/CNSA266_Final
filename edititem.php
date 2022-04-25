@@ -22,7 +22,7 @@
   }*/
 
   if(isset($_REQUEST['id'])) {
-    $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
+    $validid = pf_validate_number($_REQUEST['id'], "redirect", "index.php");
   } else {
     $url = $config_basedir . "index.php";
     redirect($url);
