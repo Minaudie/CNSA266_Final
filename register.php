@@ -10,13 +10,6 @@
   //load dependencies from composer
   require 'C:\Windows\System32\vendor\autoload.php';
 
-  //Exception class, required
-  /*require "C:\phpmailer\src\Exception.php";
-  //Main PHPMailer class, required
-  require "C:\phpmailer\src\PHPMailer.php";
-  //SMTP class, for if using SMTP, optional?
-  require "C:\phpmailer\src\SMTP.php";*/
-
   require_once("config.php");
   require_once("functions.php");
 
@@ -88,18 +81,6 @@ site, fill in the form below.
         $verifystring = urlencode($randomstring);
         $verifyemail = urlencode($email);
 
-        //TODO: TEMPORARY LOCATION + change to prep stmt
-        //changed active to 1 to bypass verify req.
-        /*$sql = "INSERT INTO users(username,password,email,verifystring,active)" .
-          " VALUES('" . $username . "', '" . $password1 .
-          "', '" . $email . "', '" . addslashes($randomstring) . "', 1);";
-        mysqli_query($db, $sql);
-        $url = $config_basedir . "login.php";
-        redirect($url);*/
-
-        //TODO: set up external html file to bring in for email body
-        //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
-
         // *** PHPMailer *** //
         //set time zone for php
         date_default_timezone_set('Etc/UTC');
@@ -156,21 +137,31 @@ site, fill in the form below.
           //end option 1
 
           //smtp username and password
-          $mail->username="auctionsite.cnsa@gmail.com";
-          $mail->password=$dbpassword;
+          //$mail->username="auctionsite.cnsa@gmail.com";
+          //$mail->password=$dbpassword;
 
-          //mail sender, with gmail has to be same as username
+          //mail sender, same as the one used to authenticate
           $mail->setFrom('auctionsite.cnsa@gmail.com', 'Auction Site');
           //recipient
           $mail->addAddress($email, $username);
           //subject
           $mail->Subject = 'Verify Account';
+
+          //TODO: set up external html file to bring in for email body
+          //decided against this as there's variables going into it.
+          //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
+          //read html message body from ext file, convert images to embedded
+          //$mail->CharSet = PHPMailer::CHARSET_UTF8;
+          //$mail->msgHTML(file_get_contents('contentsutf8.html'), __DIR__);
+
           //set email body content type to HTML
           $mail->isHTML(TRUE);
           //set mail body, HTML
-          $mail->Body = "Hi $username,<br>" .
-            "Please click on the following link to verify your new account:<br>" .
+          $mail->Body =
+            "Hi $username,<br><br>" .
+            "Please click on the following link to verify your new account:<br><br>" .
             "$verifyurl?email=$verifyemail&verify=$verifystring";
+
           //alt body, no HTML
           $mail->AltBody = "Hi $username, Please click on the following link " .
             "to verify your new account: $verifyurl?email=$verifyemail&verify=$verifystring";
@@ -188,15 +179,8 @@ site, fill in the form below.
           //send email
           if(!$mail->send()) {
             //phpmailer error
-            //TODO: turn off for final
-            echo $mail->ErrorInfo();
+            //echo $mail->ErrorInfo();
           } else { //create account
-            //TODO: change to prepared statement, move before email
-            /*$sql = "INSERT INTO users(username,password,email,verifystring,active)" .
-              " VALUES('" . $username . "', '" . $password1 .
-              "', '" . $email . "', '" . addslashes($randomstring) . "', 0);";
-            mysqli_query($db, $sql);*/
-
             $sql = $db->prepare("INSERT INTO users(username, password, email, verifystring,active)" .
               " VALUES(?,?,?,?,0);");
             $sql->bind_param("ssss", $username, $password1, $email, $randomstring);
