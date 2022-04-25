@@ -196,7 +196,7 @@
         //send owner email
         if(!$mail->send()) {
           //phpmailer error
-          echo $mail->ErrorInfo();
+          //echo $mail->ErrorInfo();
         }
       }
     } catch (Exception $ex) {
