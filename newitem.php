@@ -81,8 +81,6 @@
   </form>
 <?php
 
-  //TODO: test
-  //this isn't working, currently always sends to newitems regardless of login status
   if(isset($_SESSION['USERNAME']) == FALSE) {
     $url = $config_basedir . "login.php?ref=newitem";
     redirect($url);

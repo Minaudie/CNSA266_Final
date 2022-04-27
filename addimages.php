@@ -41,7 +41,6 @@
 
 <?php
 
-  //TODO: test ref
   if(isset($_SESSION['USERNAME']) == FALSE) {
     $url = $config_basedir . "login.php?ref=images&id=" . $validid;
     redirect($url);
