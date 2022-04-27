@@ -1,9 +1,10 @@
 <?php
+	session_start();
   require("header.php");
 
   if(isset($_GET['verify'])) {
-    $verifystring = urldecode($_GET['verify']);
-    $verifyemail = urldecode($_GET['email']);
+    $verifystring = rawurldecode($_GET['verify']);
+    $verifyemail = rawurldecode($_GET['email']);
 
     $sql = $db->prepare("SELECT id FROM users WHERE verifystring=? AND email=?;");
     $sql->bind_param("ss", $verifystring, $verifyemail);
@@ -23,6 +24,8 @@
         "<a href='login.php'>log in.</a>";
     } else {
       echo "This account could not be verified.";
+      echo "email: " . $verifyemail;
+      echo "<br>string: " . $verifystring;
     }
 
     $sql->close();

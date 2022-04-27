@@ -1,4 +1,5 @@
 <?php
+	session_start();
   require("config.php");
   require("functions.php");
 
@@ -6,25 +7,12 @@
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
-  //TODO: possibly change to $_REQUEST
-  //need both post and get parts
-  /*if(isset($_POST['image_id']) || isset($_POST['item_id'])) {
-    $validimageid = pf_validate_number($_POST['image_id'], "redirect", $config_basedir);
-    $validitemid = pf_validate_number($_POST['item_id'], "redirect", $config_basedir);
-  } elseif(isset($_GET['image_id']) || isset($_POST['item_id'])) {
-    $validimageid = pf_validate_number($_GET['image_id'], "redirect", $config_basedir);
-    $validitemid = pf_validate_number($_GET['item_id'], "redirect", $config_basedir);
-  } else {
-    $url = $config_basedir . "index.php";
-    //redirect($url);
-  }*/
-
   if(isset($_REQUEST['image_id']) && isset($_REQUEST['item_id'])) {
     $validimageid = pf_validate_number($_REQUEST['image_id'], "redirect", $config_basedir);
     $validitemid = pf_validate_number($_REQUEST['item_id'], "redirect", $config_basedir);
   } else {
     $url = $config_basedir . "index.php";
-    redirect($url); //TODO test
+    redirect($url);
   }
 
 ?>

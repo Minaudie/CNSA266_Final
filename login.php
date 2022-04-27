@@ -1,4 +1,5 @@
 <?php
+  session_start();
   require_once("config.php");
   require_once("functions.php");
 
@@ -10,6 +11,20 @@
 ?>
 
 <form action="login.php" method="POST">
+  <!-- hidden fields for keeping ref/id -->
+  <input type="hidden" name="ref"
+    value="<?php
+        if(isset($_GET['ref'])) {
+          echo $_GET['ref'];
+        }
+      ?>">
+  <input type="hidden" name="id"
+    value="<?php
+        if(isset($_GET['id'])) {
+          echo $_GET['id'];
+        }
+      ?>">
+
   <table>
     <tr>
       <td>Username</td>
@@ -35,9 +50,7 @@ Don't have an account? Go and <a href="register.php">Register!</a>
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    //prepared stmt, stage 1
     $sql = $db->prepare("SELECT * FROM users WHERE username=? AND password=?");
-    //prepared stmt, stage 2, s means string
     $sql->bind_param("ss", $username, $password);
     $sql->execute();
     //result of prepared statement
@@ -48,15 +61,15 @@ Don't have an account? Go and <a href="register.php">Register!</a>
     if($numrows == 1) {
       $row = mysqli_fetch_assoc($result);
 
-      if($row['active'] == 1) {
+      if($row['active'] === 1) {
 
         $_SESSION['USERNAME'] = $row['username'];
         $_SESSION['USERID'] = $row['id'];
 
-        if(isset($_GET['ref]'])) {
-          switch($_GET['ref']) {
+        if(isset($_POST['ref'])) {
+          switch($_POST['ref']) {
             case "addbid":
-              $url = $config_basedir . "/itemdetails.php?id=" . $_GET['id'] . "#bidbox";
+              $url = $config_basedir . "/itemdetails.php?id=" . $_POST['id'];
               redirect($url);
               break;
             case "newitem":
@@ -64,23 +77,23 @@ Don't have an account? Go and <a href="register.php">Register!</a>
               redirect($url);
               break;
             case "images":
-              $url = $config_basedir . "/addimages.php?id=" . $_GET['id'];
+              $url = $config_basedir . "/addimages.php?id=" . $_POST['id'];
               redirect($url);
               break;
             case "edititem":
-              $url = $config_basedir . "/edititem.php?id=" . $_GET['id'];
+              $url = $config_basedir . "/edititem.php?id=" . $_POST['id'];
+              break;
             default:
               $url = $config_basedir . "/index.php";
               redirect($url);
               break;
           }
+        } else {
+          $url = $config_basedir . "/index.php";
+          redirect($url);
         }
 
-        $url = $config_basedir . "/index.php";
-        redirect($url);
       } else {
-        //TODO: test 
-        require("header.php");
         echo "<br>This account is not verified yet. You were emailed a link to verify " .
           "the account.<br> Please click on the link in the email to continue.";
       }

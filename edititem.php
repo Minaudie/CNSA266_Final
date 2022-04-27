@@ -1,20 +1,11 @@
 <?php
+	session_start();
   require_once("config.php");
   require_once("functions.php");
 
   mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
-
-  //TODO: possible change to $_REQUEST
-/*	if(isset($_POST['id'])) {
-    $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
-  } elseif(isset($_GET['id'])) {
-    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
-  } else {
-    $url = $config_basedir . "index.php";
-    redirect($url);
-  }*/
 
   if(isset($_REQUEST['id'])) {
     $validid = pf_validate_number($_REQUEST['id'], "redirect", "index.php");
@@ -38,11 +29,13 @@
   $checkbidresult = $checkbidsql->get_result();
   $checkbidnumrows = mysqli_num_rows($checkbidresult);
   $price = 0;
+  $bidsExist = FALSE;
   if($checkbidnumrows == 0) { //no bids
     $price = $infoassoc['startingprice'];
   } else { //get highest bid
     $checkbidrow = mysqli_fetch_assoc($checkbidresult);
     $price = $checkbidrow['highestbid'];
+    $bidsExist = TRUE;
   }
 
   require_once("header.php");
@@ -117,9 +110,14 @@
       <tr>
         <td>Price</td>
         <td>
-          <?php echo $config_currency; ?>
-          <input type="text" name="price"
-            value="<?php echo $price; ?>">
+          <?php echo $config_currency;
+            echo "<input type='text' name='price' value=" . $price;
+            if($bidsExist) {
+              echo " disabled> Cannot change price after bids have been placed.";
+            } else {
+              echo " >";
+            }
+          ?>
         </td>
       </tr>
       <tr>
@@ -130,7 +128,6 @@
   </form>
 <?php
 
-  //TODO: test
   if(isset($_SESSION['USERNAME']) == FALSE) {
     $url = $config_basedir . "login.php?ref=edititem&id=" . $validid;
     redirect($url);

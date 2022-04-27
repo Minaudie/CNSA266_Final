@@ -1,20 +1,11 @@
 <?php
+	session_start();
 	require_once("config.php");
   require_once("functions.php");
 
 	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
-
-	//TODO: possible change to $_REQUEST
-	/*if(isset($_POST['id'])) {
-    $validid = pf_validate_number($_POST['id'], "redirect", "index.php");
-  } elseif(isset($_GET['id'])) {
-    $validid = pf_validate_number($_GET['id'], "redirect", "index.php");
-  } else {
-    $url = $config_basedir . "index.php";
-    redirect($url);
-  }*/
 
   if(isset($_REQUEST['id'])) {
     $validid = pf_validate_number($_REQUEST['id'], "redirect", "index.php");
@@ -70,9 +61,12 @@
 		$theitemsql->close();
 		$checkbidsql->close();
 
+		$bidAmount = $_POST['bid'];
+		$userID = $_SESSION['USERID'];
+
 		$inssql = $db->prepare("INSERT INTO bids(item_id, amount, user_id) " .
 			"VALUES(?,?,?);");
-		$inssql->bind_param("idi", $validid, $_POST['bid'], $_SESSION['USERID']);
+		$inssql->bind_param("idi", $validid, $bidAmount, $userID);
 		$inssql->execute();
 		$inssql->close();
 
@@ -154,7 +148,7 @@
 	    echo "To bid, you need to login. <a href='login.php?id=" .
 	      $validid . "&ref=addbid'>Login here</a>";
 	  } else {
-	    if($VALIDAUCTION == 1) { //TODO: check for possible errors
+	    if($VALIDAUCTION == 1) {
 	      echo "Enter the bid amount into the box below.";
 	      echo "<p>";
 

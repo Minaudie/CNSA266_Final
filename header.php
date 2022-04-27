@@ -2,8 +2,8 @@
 	//added save path to php.ini
 	//session.save_path = "C:\php\tmp"
 	//except it decided to stop working properly and won't accept my config change
-	ini_set('session.save_path', 'C:\php\tmp');
-	session_start();
+	//ini_set('session.save_path', 'C:\php\tmp');
+	//session_start();
 
 	require_once("config.php");
 

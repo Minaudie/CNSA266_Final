@@ -42,7 +42,9 @@
       //set phpmailer to SMTP
       $mail->isSMTP();
       //smtp debugging
-      $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+      //SMTP::DEBUG_SERVER - client and server messages
+      //SMTP::DEBUG_OFF - no messages
+      $mail->SMTPDebug = SMTP::DEBUG_OFF;
       //set hostname
       $mail->Host = 'smtp.gmail.com';
 
@@ -123,7 +125,7 @@
         }
 
       } else { //email owner and winner
-        echo "item with bids" . $itemsrow['id'];
+        //echo "Item id with bids: " . $itemsrow['id'];
         $bidsrow = mysqli_fetch_assoc($bidsresult);
 
         $own_highestbid = $bidsrow['amount'];
@@ -165,9 +167,8 @@
         //send winner email
         //send email
         if(!$mail->send()) {
-          //phpmailer error
-          //TODO: turn off for final
-          echo $mail->ErrorInfo();
+          //phpmailer error, for testing
+          //echo $mail->ErrorInfo();
         }
 
         //recipient
@@ -191,7 +192,7 @@
 
         //send owner email
         if(!$mail->send()) {
-          //phpmailer error, for testing 
+          //phpmailer error, for testing
           //echo $mail->ErrorInfo();
         }
       }

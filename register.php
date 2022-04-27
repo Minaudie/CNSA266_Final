@@ -74,9 +74,9 @@ site, fill in the form below.
           $randomstring .= chr(mt_rand(32,126));
         }
 
-        $verifyurl = "http://192.168.32.140/verify.php";
-        $verifystring = urlencode($randomstring);
-        $verifyemail = urlencode($email);
+        $verifyurl = $config_basedir . "verify.php";
+        $verifystring = rawurlencode($randomstring);
+        $verifyemail = rawurlencode($email);
 
         // *** PHPMailer *** //
         //set time zone for php
@@ -88,7 +88,9 @@ site, fill in the form below.
           //set phpmailer to SMTP
           $mail->isSMTP();
           //smtp debugging
-          $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+          //SMTP::DEBUG_SERVER - client and server messages
+          //SMTP::DEBUG_OFF - no messages
+          $mail->SMTPDebug = SMTP::DEBUG_OFF;
           //set hostname
           $mail->Host = 'smtp.gmail.com';
 
@@ -164,7 +166,7 @@ site, fill in the form below.
 
           //send email
           if(!$mail->send()) {
-            //phpmailer error, for testing 
+            //phpmailer error, for testing
             //echo $mail->ErrorInfo();
           } else { //create account
             $sql = $db->prepare("INSERT INTO users(username, password, email, verifystring,active)" .
