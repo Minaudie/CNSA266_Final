@@ -1,7 +1,4 @@
 <?php
-  //removed session start, as it is called on index.php
-  //session_start();
-
   require_once("config.php");
   require_once("functions.php");
 
@@ -9,20 +6,9 @@
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
-	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
-	//mysql_select_db($dbdatabase, $db);
-
   require_once("header.php");
 ?>
 
-<!-- the book has $SCRIPT_NAME in the action attribute, which is supposedly
-     a special variable that is the name of the current script. I cannot find
-     anything on google about this. So I just hardcoded it. There are so
-     many hard coded pages in this project that this specific usage as a
-     way to avoid hardcoding is baffling to me. This book sucks.
-     Also this got moved from under the PHP script because it wasn't showing
-     up at all.
- -->
 <form action="login.php" method="POST">
   <table>
     <tr>
@@ -49,11 +35,6 @@ Don't have an account? Go and <a href="register.php">Register!</a>
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    //removed for prepared statements
-    //$sql = mysqli_real_escape_string($db, "SELECT id, username, active " .
-      //"FROM users WHERE username = " . "$user" . " AND password = " . "$pass" . ";");
-    //$result = mysqli_query($db, $sql);
-
     //prepared stmt, stage 1
     $sql = $db->prepare("SELECT * FROM users WHERE username=? AND password=?");
     //prepared stmt, stage 2, s means string
@@ -68,9 +49,6 @@ Don't have an account? Go and <a href="register.php">Register!</a>
       $row = mysqli_fetch_assoc($result);
 
       if($row['active'] == 1) {
-        //deprecated/removed over a decade ago :)
-        //session_register("USERNAME");
-        //session_register("USERID");
 
         $_SESSION['USERNAME'] = $row['username'];
         $_SESSION['USERID'] = $row['id'];
@@ -101,9 +79,10 @@ Don't have an account? Go and <a href="register.php">Register!</a>
         $url = $config_basedir . "/index.php";
         redirect($url);
       } else {
-        //require("header.php");
-        //echo "<br>This account is not verified yet. You were emailed a link to verify " .
-          //"the account.<br> Please click on the link in the email to continue.";
+        //TODO: test 
+        require("header.php");
+        echo "<br>This account is not verified yet. You were emailed a link to verify " .
+          "the account.<br> Please click on the link in the email to continue.";
       }
     } else {
         $url = $config_basedir . "/login.php?error=1";

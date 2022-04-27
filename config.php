@@ -1,5 +1,4 @@
 <?php
-	//database information
 	//location of database
 	$dbhost = "localhost";
 
@@ -13,7 +12,7 @@
 	$config_admin = "CNSA";
 	$config_adminemail = "mdorosz202 AT stevenscollege DOT edu";
 
-	// used to redirect pages.
+	// used to redirect pages
 	$config_basedir = "http://192.168.32.140/";
 
 	// The currency used on the auction

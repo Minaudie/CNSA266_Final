@@ -1,15 +1,10 @@
 <?php
-  //session_start();
-
   require_once("config.php");
   require_once("functions.php");
 
   mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
-
-	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
-	//mysql_select_db($dbdatabase, $db);
 
   //TODO: possible change to $_REQUEST
 /*	if(isset($_POST['id'])) {

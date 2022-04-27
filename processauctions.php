@@ -87,10 +87,6 @@
       );
       //end option 1
 
-      //smtp username and password
-      //$mail->username="auctionsite.cnsa@gmail.com";
-      //$mail->password=$dbpassword;
-
       //mail sender, with gmail has to be same as username
       $mail->setFrom('auctionsite.cnsa@gmail.com', 'Auction Site');
 
@@ -195,7 +191,7 @@
 
         //send owner email
         if(!$mail->send()) {
-          //phpmailer error
+          //phpmailer error, for testing 
           //echo $mail->ErrorInfo();
         }
       }
@@ -208,10 +204,6 @@
     $updsql->bind_param("i", $itemsrow['id']);
     $updsql->execute();
   }
-
-  //$itemssql->close();
-  //$bidssql->close();
-  //$updsql->close();
 
   require("footer.php");
 ?>

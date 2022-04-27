@@ -6,9 +6,6 @@
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
 
-	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
-	//mysql_select_db($dbdatabase, $db);
-
   //TODO: possibly change to $_REQUEST
   //need both post and get parts
   /*if(isset($_POST['image_id']) || isset($_POST['item_id'])) {
@@ -27,7 +24,7 @@
     $validitemid = pf_validate_number($_REQUEST['item_id'], "redirect", $config_basedir);
   } else {
     $url = $config_basedir . "index.php";
-    //redirect($url); //TODO test
+    redirect($url); //TODO test
   }
 
 ?>
@@ -41,10 +38,6 @@
 
   //if yes to delete image
   if(isset($_POST['submityes']) && $_POST['submityes']) {
-    //replaced with prep stmt
-    /*$imagesql = mysqli_real_escape_string($db, "SELECT name FROM images WHERE id=" .
-    $validimageid);
-    $imageresult = mysqli_query($db, $imagesql);*/
 
     $imagesql = $db->prepare("SELECT name FROM images WHERE id=?;");
     $imagesql->bind_param("i", $validimageid);
@@ -58,11 +51,6 @@
     unlink("C:\CNSA266_Final\Images\\" . $imagerow['name']);
 
     $imagesql->close();
-
-    //replaced with prep stmt
-    /*$delsql = mysqli_real_escape_string($db, "DELETE FROM images WHERE id=" .
-    $validimageid);
-    mysqli_query($db, $delsql);*/
 
     $delsql = $db->prepare("DELETE FROM images WHERE id=?;");
     $delsql->bind_param("i", $validimageid);

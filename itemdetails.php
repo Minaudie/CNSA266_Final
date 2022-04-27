@@ -1,15 +1,10 @@
 <?php
-	//session_start();
-
-  require_once("config.php");
+	require_once("config.php");
   require_once("functions.php");
 
 	mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
-
-	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
-	//mysql_select_db($dbdatabase, $db);
 
 	//TODO: possible change to $_REQUEST
 	/*if(isset($_POST['id'])) {
@@ -43,23 +38,12 @@
 			redirect($url);
     }
 
-		//replaced with prep stmt
-    /*$theitemsql = mysqli_real_escape_string($db, "SELECT * FROM items WHERE id="
-			. $validid . ";");
-    $theitemresult = mysqli_query($db, $theitemsql);*/
-
 		$theitemsql = $db->prepare("SELECT * FROM items WHERE id=?;");
 		$theitemsql->bind_param("i", $validid);
 		$theitemsql->execute();
 		$theitemresult = $theitemsql->get_result();
 
 		$theitemrow = mysqli_fetch_assoc($theitemresult);
-
-		//replaced with prep stmt
-    /*$checkbidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount)" .
-		 	"AS highestbid, COUNT(id) AS number_of_bids FROM bids WHERE item_id="
-			. $validid . " GROUP BY item_id;");
-    $checkbidresult = mysqli_query($checkbidsql);*/
 
 		$checkbidsql = $db->prepare("SELECT item_id, MAX(amount) AS highestbid, COUNT(id)" .
 			" AS number_of_bids FROM bids WHERE item_id=? GROUP BY item_id;");
@@ -86,12 +70,6 @@
 		$theitemsql->close();
 		$checkbidsql->close();
 
-		//replaced with prep stmt
-    /*$inssql = mysqli_real_escape_string($db, "INSERT INTO "
-			. "bids(item_id, amount,user_id) VALUES(" . $validid . ", " .
-			$_POST['bid'] . ", " . $_SESSION['USERID'] . ");");
-    mysqli_query($db, $inssql);*/
-
 		$inssql = $db->prepare("INSERT INTO bids(item_id, amount, user_id) " .
 			"VALUES(?,?,?);");
 		$inssql->bind_param("idi", $validid, $_POST['bid'], $_SESSION['USERID']);
@@ -103,11 +81,6 @@
 
   } else {
 	  require_once("header.php");
-
-		//replaced with prep stmt
-	  /*$itemsql = mysqli_real_escape_string($db, "SELECT UNIX_TIMESTAMP(dateends)" .
-		 	"AS dateepoch, items.* FROM items WHERE id=" . $validid . ";");
-	  $itemresult = mysqli_query($db, $itemsql);*/
 
 		$itemsql = $db->prepare("SELECT UNIX_TIMESTAMP(dateends) AS dateepoch, items.* " .
 			"FROM items WHERE id=?;");
@@ -127,23 +100,12 @@
 
 	  echo "<h2>" . $itemrow['name'] . "</h2>";
 
-		//replaced with prep stmt
-	  /*$imagesql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
-			$validid . ";");
-	  $imageresult = mysqli_query($db, $imagesql);*/
-
 		$imagesql = $db->prepare("SELECT * FROM images WHERE item_id=?;");
 		$imagesql->bind_param("i", $validid);
 		$imagesql->execute();
 		$imageresult = $imagesql->get_result();
 
 	  $imagenumrows = mysqli_num_rows($imageresult);
-
-		//replaced with prep stmt
-	  /*$bidsql = mysqli_real_escape_string($db, "SELECT item_id, MAX(amount) AS" .
-		 	" highestbid, COUNT(id) AS number_of_bids FROM bids WHERE item_id=" .
-			$validid . " GROUP BY item_id;");
-	  $bidresult = mysqli_query($db, $bidsql);*/
 
 		$bidsql = $db->prepare("SELECT item_id, MAX(amount) AS highestbid, COUNT(id) " .
 			"AS number_of_bids FROM bids WHERE item_id=? GROUP BY item_id;");
@@ -224,12 +186,6 @@
       } else { //valid auction else
         echo "This auction has now ended.";
       }
-
-			//replaced with prep statement
-      /*$historysql = mysqli_real_escape_string($db, "SELECT bids.amount," .
-				" users.username FROM bids, users WHERE bids.user_id = users.id AND item_id=" .
-        $validid . " ORDER BY amount DESC;");
-      $historyresult = mysqli_query($db, $historysql);*/
 
 			$historysql = $db->prepare("SELECT bids.amount, users.username FROM bids " .
 				", users WHERE bids.user_id = users.id AND item_id=? ORDER BY amount DESC;");

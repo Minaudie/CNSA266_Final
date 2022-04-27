@@ -58,12 +58,9 @@ site, fill in the form below.
       $password1 = $_POST['password1'];
       $email = $_POST['email'];
 
-      //prepared statement stage 1
       $checksql = $db->prepare("SELECT * FROM users WHERE username = ?");
-      //prepared statement stage 2, s means string
       $checksql->bind_param("s", $username);
       $checksql->execute();
-      //getting result of prepared statement
       $checkresult = $checksql->get_result();
 
       $checknumrows = mysqli_num_rows($checkresult);
@@ -77,7 +74,7 @@ site, fill in the form below.
           $randomstring .= chr(mt_rand(32,126));
         }
 
-        $verifyurl = "http://127.0.0.1/verify.php";
+        $verifyurl = "http://192.168.32.140/verify.php";
         $verifystring = urlencode($randomstring);
         $verifyemail = urlencode($email);
 
@@ -136,23 +133,12 @@ site, fill in the form below.
           );
           //end option 1
 
-          //smtp username and password
-          //$mail->username="auctionsite.cnsa@gmail.com";
-          //$mail->password=$dbpassword;
-
           //mail sender, same as the one used to authenticate
           $mail->setFrom('auctionsite.cnsa@gmail.com', 'Auction Site');
           //recipient
           $mail->addAddress($email, $username);
           //subject
           $mail->Subject = 'Verify Account';
-
-          //TODO: set up external html file to bring in for email body
-          //decided against this as there's variables going into it.
-          //https://github.com/PHPMailer/PHPMailer/blob/master/examples/gmail.phps
-          //read html message body from ext file, convert images to embedded
-          //$mail->CharSet = PHPMailer::CHARSET_UTF8;
-          //$mail->msgHTML(file_get_contents('contentsutf8.html'), __DIR__);
 
           //set email body content type to HTML
           $mail->isHTML(TRUE);
@@ -178,7 +164,7 @@ site, fill in the form below.
 
           //send email
           if(!$mail->send()) {
-            //phpmailer error
+            //phpmailer error, for testing 
             //echo $mail->ErrorInfo();
           } else { //create account
             $sql = $db->prepare("INSERT INTO users(username, password, email, verifystring,active)" .

@@ -1,6 +1,4 @@
 <?php
-  //session_start();
-
   require_once("config.php");
   require_once("functions.php");
 
@@ -8,9 +6,6 @@
 
 	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
   $MAX_FILE_SIZE = 3000000;
-
-	//not needed with mysqli, replaced with 4th parameter in mysqli_connect
-	//mysql_select_db($dbdatabase, $db);
 
   if(isset($_REQUEST['id'])) {
     $validid = pf_validate_number($_REQUEST['id'], "redirect", "index.php");
@@ -25,10 +20,6 @@
 
   <form enctype="multipart/form-data" action="addimages.php"
     method="POST">
-
-    <!--Did not work
-    <input type="hidden" name="MAX_FILE_SIZE" value="3000000">
-    -->
 
     <!-- used to keep item ID after submit -->
     <input type="hidden" name="id" value="<?php echo $validid ?>">
@@ -54,11 +45,6 @@
     $url = $config_basedir . "login.php?ref=images&id=" . $validid;
     redirect($url);
   }
-
-  //replaced with prepared statement
-  //$theitemsql = mysqli_real_escape_string($db, "SELECT user_id FROM items WHERE id=" .
-    //$validid . ";");
-  //$theitemresult = mysqli_query($db, $theitemsql);
 
   //find user ID for item id from GET
   //prep stmt stage 1
@@ -99,11 +85,6 @@
       //move_uploaded_file will check if first param is valid upload file,
       //then move it to second param
       if(move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile)) {
-        //replaced with prepared statement
-        /*$inssql = mysqli_real_escape_string($db, "INSERT INTO images(item_id, name)" .
-          "VALUES(" . $validid . ", '" . $_FILES['userfile']['name'] . "')");
-        mysqli_query($db, $inssql);*/
-
         //prep stmt stage 1
         $inssql = $db->prepare("INSERT INTO images(item_id, name) VALUES(?,?);");
         //prep stmt stage 2
@@ -120,11 +101,6 @@
       }
     }
   } else {
-    //replaced with prep stmt
-    /*$imagessql = mysqli_real_escape_string($db, "SELECT * FROM images WHERE item_id=" .
-      $validid . ";");
-    $imagesresult = mysqli_query($db, $imagessql);*/
-
     //prep stmt stage 1
     $imagessql = $db->prepare("SELECT * FROM images WHERE item_id=?;");
     //prep stmt stage 2
