@@ -24,6 +24,11 @@
     <!-- continued around line 55 -->
 <?php
 
+	if(isset($_SESSION['USERNAME']) == FALSE) {
+		$url = $config_basedir . "login.php";
+		redirect($url);
+	}
+
   //if yes to delete image
   if(isset($_POST['submityes']) && $_POST['submityes']) {
 

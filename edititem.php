@@ -128,7 +128,7 @@
   </form>
 <?php
 
-  if(isset($_SESSION['USERNAME']) == FALSE) {
+	if(isset($_SESSION['USERNAME']) == FALSE) {
     $url = $config_basedir . "login.php?ref=edititem&id=" . $validid;
     redirect($url);
   }
