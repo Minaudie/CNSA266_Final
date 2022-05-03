@@ -58,6 +58,8 @@
   </p>
   <form action="edititem.php" method="POST">
     <input type="hidden" name="id" value="<?php echo $validid; ?>">
+		<!-- if price is disabled because there are bids, will not post correctly -->
+		<input type="hidden" name="price" value="<?php echo $price; ?>">
     <table>
       <?php
         $catsql = $db->prepare("SELECT * FROM categories ORDER BY cat;");
@@ -143,12 +145,21 @@
       $itemdesc = $_POST['description'];
       $date = $_POST['dateTimeSelect'];
 
-      //update item information
-      $itemsql = $db->prepare(
-        "UPDATE items SET cat_id=?, name=?, startingprice=?, description=?, dateends=? " .
-        "WHERE id=?;");
-      $itemsql->bind_param("isdssi", $category, $itemname, $itemprice, $itemdesc, $date, $validid);
-      $itemsql->execute();
+			if($bidsExist) {
+				//update information without price, because bids exist
+				$itemsql = $db->prepare(
+	        "UPDATE items SET cat_id=?, name=?, description=?, dateends=? " .
+	        "WHERE id=?;");
+	      $itemsql->bind_param("isdssi", $category, $itemname, $itemdesc, $date, $validid);
+	      $itemsql->execute();
+			} else {
+				//update item information including price
+	      $itemsql = $db->prepare(
+	        "UPDATE items SET cat_id=?, name=?, startingprice=?, description=?, dateends=? " .
+	        "WHERE id=?;");
+	      $itemsql->bind_param("isdssi", $category, $itemname, $itemprice, $itemdesc, $date, $validid);
+	      $itemsql->execute();
+			}
 
       //if successful, go to add images page
       $url = $config_basedir . "addimages.php?id=" . $validid;
