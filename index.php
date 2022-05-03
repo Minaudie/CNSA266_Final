@@ -1,95 +1,116 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<title><?php echo $config_forumsname; ?></title>
-	<meta http-equiv="content-type"	content="text/html; charset=iso-8859-1"/>
-</head>
-<body>
-	<p>
-		<?php
-			require(“config.php”);
-			require(“functions.php”);
-			require(“functions.php”);
-			require(“header.php”);
-			$validid = pf_validate_number($_GET[‘id’], “value”, $config_basedir);
+<?php
+	session_start();
+	require_once("config.php");
+	require_once("functions.php");
 
-			if($validid == 0) {
-				$sql = "SELECT items.* FROM items WHERE dateends > NOW()";
-			} else {
-				$sql = "SELECT * FROM items WHERE dateends > NOW() AND cat_id = " .
-					$validid . ";";
-			}
+	//pf_validate_number checks isset, however, was getting an error on this page
+	//function will return 0 if not set and second param is not "redirect"
+	if(isset($_GET['id'])) {
+		$validid = pf_validate_number($_GET['id'], "value", $config_basedir);
+	} else {
+		$validid = 0;
+	}
 
-			$result = mysql_query($sql);
-			$numrows = mysql_num_rows($result);
+	require("header.php");
 
-			echo "<h1>Items available</h1>";
-			echo "<table cellpadding='5'";
+	//if no category has been selected
+	if($validid == 0) {
+		$sql = $db->prepare("SELECT * FROM items WHERE dateends > NOW();");
+		//no params to bind
+	} else {
+		$sql = $db->prepare("SELECT * FROM items WHERE dateends > NOW() AND cat_id=?;");
+		$sql->bind_param("i", $validid);
+	}
+
+	$sql->execute();
+	$result = $sql->get_result();
+
+	$numrows = mysqli_num_rows($result);
+
+	//this line doesn't show up?
+	echo "<h1>Items available</h1>";
+	//table of available items
+	echo "<table cellpadding='5'>";
+	echo "<tr>";
+	//column headings
+	echo "<th>Image</th>";
+	echo "<th>Item</th>";
+	echo "<th>Bids</th>";
+	echo "<th>Price</th>";
+	echo "<th>End Date</th>"; //book didn't have this for some reason??
+	echo "</tr>";
+
+	//column data
+	if($numrows == 0) {
+		echo "<tr><td colspan=4>No items!</td></tr>";
+	} else {
+		while($row = mysqli_fetch_assoc($result)) {
+
+			//Image
+			$imagesql = $db->prepare("SELECT * FROM images WHERE item_id=? LIMIT 1;");
+			$imagesql->bind_param("i", $row['id']);
+			$imagesql->execute();
+			$imageresult = $imagesql->get_result();
+
+			$imagenumrows = mysqli_num_rows($imageresult);
+
 			echo "<tr>";
-			echo "<th>Image</th>";
-			echo "<th>Item</th>";
-			echo "<th>Bids</th>";
-			echo "</tr>";
-
-			if($numrows == 0) {
-				echo "<tr><td colspan='4'>No items!</td></tr>";
+			if($imagenumrows == 0) {
+				echo "<td>No image</td>";
 			} else {
-				while($row = mysql_fetch_assoc($result)) {
-					$imagesql = "SELECT * FROM images WHERE item_id = " .
-						$row['id'] . " LIMIT 1";
-					$imageresult = mysql_query($imagesql);
-					$imagenumrows = mysql_num_rows($imageresult);
-
-					echo "<tr>";
-					if($imagenumrows == 0) {
-						echo "<td>No image</td>";
-					} else {
-						$imagerow = mysql_fetch_assoc($imageresult);
-						echo "<td><img src='./images/" . $imagerow['name'] .
-							"' width='100'></td>";
-					}
-
-					echo "<td>";
-					echo "<a href='itemdetails.php?id=" . $row['id'] .
-						"'>" . $row['name'] . "</a>";
-					if($_SESSION['USERID'] == $row['user_id']) {
-						echo " - [<a href='edititem.php?id=" . $row['id'] .
-							"'>edit</a>]";
-					}
-					echo "</td>";
-
-					$bidsql = "SELECT item_id, MAX(amount) AS highestbid," .
-						" COUNT(id) AS numberofbids FROM bids WHERE item_id=" .
-						$row['id'] . " GROUP BY item_id;";
-					$bidresult = mysql_query($bidsql);
-					$bidrow = mysql_fetch_assoc($bidresult);
-					$bidnumrows = mysql_num_rows($bidresult);
-
-					echo "<td>";
-					if($bidnumrows == 0) {
-						echo "0";
-					} else {
-						echo $bidrow['numberofbids'] . "</td>";
-					}
-
-					echo "<td>" . $config_currency;
-					if($bidnumrows == 0) {
-						echo sprintf('%.2f', $row['startingprice']);
-					} else {
-						echo sprintf('%.2f', $bidrow['highestbid']);
-					}
-					echo "</td>"
-
-					echo "<td>" . date("D jS F Y g.iA", strtotime($row['dateends'])) . "</td>";
-					echo "</tr>";
-
-				}
+				$imagenumrows = mysqli_fetch_assoc($imageresult);
+				echo "<td><img src='" . $config_basedir . "Images/" . $imagenumrows['name'] .
+					"' width='100'></td>";
 			}
 
-			echo "</table>";
-			require("footer.php");
-		?>
-	</p>
-</body>
-</html>
+			//item name
+			echo "<td>";
+			echo "<a href='itemdetails.php?id=" . $row['id'] .
+				"'>" . $row['name'] . "</a>";
+
+			//show button to edit item if user submitted item
+			//check if session variable is set and if so, is it equal to userID
+			if(isset($_SESSION['USERID']) && $_SESSION['USERID'] == $row['user_id']) {
+				echo " - [<a href='edititem.php?id=" . $row['id'] .
+					"'>edit</a>]";
+			}
+			echo "</td>";
+
+			//number of bids
+			$bidsql = $db->prepare("SELECT item_id, MAX(amount) AS highestbid, " .
+				"COUNT(id) AS numberofbids FROM bids WHERE item_id=? GROUP BY item_id;");
+			$bidsql->bind_param("i", $row['id']);
+			$bidsql->execute();
+			$bidresult = $bidsql->get_result();
+
+			$bidrow = mysqli_fetch_assoc($bidresult);
+			$bidnumrows = mysqli_num_rows($bidresult);
+
+			echo "<td>";
+			if($bidnumrows == 0) {
+				echo "0";
+			} else {
+				echo $bidrow['numberofbids'] . "</td>";
+			}
+
+			//price, shows highest bid or starting price if no bids
+			echo "<td>" . $config_currency;
+			if($bidnumrows == 0) {
+				echo sprintf('%.2f', $row['startingprice']);
+			} else {
+				echo sprintf('%.2f', $bidrow['highestbid']);
+			}
+			echo "</td>";
+
+			//end date of auction
+			echo "<td>" . date("D jS F Y g.iA", strtotime($row['dateends'])) . "</td>";
+			echo "</tr>";
+		}
+		$sql->close();
+		$imagesql->close();
+		$bidsql->close();
+	}
+
+	echo "</table>";
+	require("footer.php");
+?>

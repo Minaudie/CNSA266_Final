@@ -1,29 +1,38 @@
 <?php
-require("header.php");
-$verifystring = urldecode($_GET['verify']);
-$verifyemail = urldecode($_GET['email']);
-$verifyemail = urldecode($_GET['email']);
-$sql = "SELECT id FROM users WHERE verifystring
-= '" . $verifystring . "' AND email = '" .
-$verifyemail . "';";
-$result = mysql_query($sql);
-$numrows = mysql_num_rows($result);
-$numrows = mysql_num_rows($result);
-if($numrows == 1) {
-$row = mysql_fetch_assoc($result);
-$sql = "UPDATE users SET active = 1 WHERE id = " . $row['id'];
-$result = mysql_query($sql);
-echo "Your account has now been verified.
-You can now <a href='login.php'>log in</a>";
-}
-echo "Your account has now been verified.
-You can now <a href='login.php'>log in</a>";
-}
-else {
-echo "This account could not be verified.";
-}
-Finally, add the footer:
-echo "This account could not be verified.";
-}
-require("footer.php");
+	session_start();
+  require("header.php");
+
+  if(isset($_GET['verify'])) {
+    $verifystring = rawurldecode($_GET['verify']);
+    $verifyemail = rawurldecode($_GET['email']);
+
+    $sql = $db->prepare("SELECT id FROM users WHERE verifystring=? AND email=?;");
+    $sql->bind_param("ss", $verifystring, $verifyemail);
+    $sql->execute();
+    $result = $sql->get_result();
+
+    $numrows = mysqli_num_rows($result);
+
+    if($numrows == 1) {
+      $row = mysqli_fetch_assoc($result);
+
+      $sql = $db->prepare("UPDATE users SET active=1 WHERE id=?;");
+      $sql->bind_param("i", $row['id']);
+      $sql->execute();
+
+      echo "Your account has now been verified. You can now " .
+        "<a href='login.php'>log in.</a>";
+    } else {
+      echo "This account could not be verified.";
+      echo "email: " . $verifyemail;
+      echo "<br>string: " . $verifystring;
+    }
+
+    $sql->close();
+
+    require("footer.php");
+  } else {
+    $url = $config_basedir; //aka index.php
+    redirect($url);
+  }
 ?>

@@ -1,170 +1,113 @@
-<h1>Add a new item</h1>
-<strong>Step 1</strong> - Add your item details.
-<p>
 <?php
-switch($_GET[‘error’]) {
-case “date”:
-echo “<strong>Invalid date – please
-choose another!</strong>”;
-break;
-}
-?>
-</p>
-<?php
-session_start();
-require(“config.php”);
-require(“functions.php”);
-$db = mysql_connect($dbhost, $dbuser, $dbpassword);
-mysql_select_db($dbdatabase, $db);
-//After this initial code, protect the page from people who are not logged in. Use
-//the usual trick of checking to see if a USERNAME session variable exists:
-$db = mysql_connect($dbhost, $dbuser, $dbpassword);
-mysql_select_db($dbdatabase, $db);
-if(isset($_SESSION[‘USERNAME’]) == FALSE) {
-header(“Location: “ . $config_basedir . “/login.php?ref=newitem”);
-}
-//Begin processing the form:
-if(isset($_SESSION[‘USERNAME’]) == FALSE) {
-header(“Location: “ . $config_basedir . “/login.php?ref=newitem”);
-}
-if($_POST[‘submit’]) {
-$validdate = checkdate($_POST[‘month’], $_POST[‘day’],
-$_POST[‘year’]);
-if($_POST[‘submit’]) {
-$validdate = checkdate($_POST[‘month’], $_POST[‘day’],
-$_POST[‘year’]);
-if($validdate == TRUE) {
-$concatdate = $_POST[‘year’]
-. “-” . sprintf(“%02d”, $_POST[‘day’])
-. “-” . sprintf(“%02d”, $_POST[‘month’])
-. “ “ . $_POST[‘hour’]
-. “:” . $_POST[‘minute’]
-. “:00”;
-$concatdate = $_POST[‘year’]
-. “-” . sprintf(“%02d”, $_POST[‘day’])
-. “-” . sprintf(“%02d”, $_POST[‘month’])
-. “ “ . $_POST[‘hour’]
-. “:” . $_POST[‘minute’]
-. “:00”;
-$itemsql = “INSERT INTO items(user_id, cat_id, name,
-startingprice, description, dateends) VALUES(“
-. $_SESSION[‘USERID’]
-. “, “ . $_POST[‘cat’]
-. “, ‘“ . addslashes($_POST[‘name’])
-. “‘, “ . $_POST[‘price’]
-. “, ‘“ . addslashes($_POST[‘description’])
-. “‘, ‘“ . $concatdate
-. “‘);”;
-mysql_query($itemsql);
-$itemid = mysql_insert_id();
-header(“Location: “ . $config_basedir
-. “/addimages.php?id=” . $itemid);
-}
-else {
-header(“Location: “ . $config_basedir .
-“/newitem.php?error=date”);
-}
-}
+	session_start();
+  require_once("config.php");
+  require_once("functions.php");
 
-<form action=”<?php echo
-pf_script_with_get($SCRIPT_NAME); ?>” method=”post”>
-<table>
-<?php
-$catsql = “SELECT * FROM categories ORDER BY category;”;
-$catresult = mysql_query($catsql);
+  mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+	$db = mysqli_connect($dbhost, $dbuser, $dbpassword, $dbdatabase);
+
+  require_once("header.php");
 ?>
-<tr>
-<td>Category</td>
-<td>
-<select name=”cat”>
+  <h1>Add a new item</h1>
+  <strong>Step 1</strong> - Add your item details.
+  <p>
+    <?php
+      if(isset($_GET['error'])) {
+        switch($_GET['error']) {
+          case "date":
+            echo "<strong>Invalid date - Please choose another!</strong>";
+            break;
+          default:
+            echo "Unknown error.";
+            break;
+        }
+      }
+    ?>
+  </p>
+  <form action="newitem.php" method="POST">
+    <table>
+      <?php
+        $catsql = $db->prepare("SELECT * FROM categories ORDER BY cat;");
+        //no bind_param as there are no variables to insert
+        $catsql->execute();
+        //getting result
+        $catresult = $catsql->get_result();
+      ?>
+      <tr>
+        <td>Category</td>
+        <td>
+          <select name="cat">
+            <?php
+              while($catrow = mysqli_fetch_assoc($catresult)) {
+                echo "<option value='" . $catrow['id'] . "'>" . $catrow['cat'] .
+                  "</option>";
+              }
+            ?>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td>Item name</td>
+        <td><input type="text" name="name"></td>
+      </tr>
+      <tr>
+        <td>Item Description</td>
+        <td>
+          <textarea name="description" rows="10" cols="50"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td>Ending Date</td>
+        <td>
+          <input type="datetime-local" name="dateTimeSelect"
+            min="<?php $md = new DateTime('+1 day');
+              $mindate = $md->format('Y-m-d\TH:i');
+              echo $mindate; ?>">
+        </td>
+      </tr>
+      <tr>
+        <td>Price</td>
+        <td>
+          <?php echo $config_currency; ?>
+          <input type="text" name="price">
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><input type="submit" name="submit" value="Post!"></td>
+      </tr>
+    </table>
+  </form>
 <?php
-while($catrow = mysql_fetch_assoc($catresult)) {
-echo “<option value=’”
-. $catrow[‘id’] . “‘>” . $catrow[‘category’]
-. “</option>”;
-}
+
+  if(isset($_SESSION['USERNAME']) == FALSE) {
+    $url = $config_basedir . "login.php?ref=newitem";
+    redirect($url);
+  }
+
+  //will check left and if false, will not check right
+  if(isset($_POST['submit']) && $_POST['submit']) {
+    $userid = $_SESSION['USERID'];
+    $category = $_POST['cat'];
+    $itemname = $_POST['name'];
+    $itemprice = $_POST['price'];
+    $itemdesc = $_POST['description'];
+    $date = $_POST['dateTimeSelect'];
+
+    $itemsql = $db->prepare(
+      "INSERT INTO items(user_id, cat_id, name, startingprice, description, dateends,endnotified)" .
+      " VALUES(?,?,?,?,?,?,0);");
+    $itemsql->bind_param("iisdss", $userid, $category, $itemname, $itemprice,
+      $itemdesc, $date);
+    $itemsql->execute();
+    //get the id of the previously inserted record
+    $item_id = $itemsql->insert_id;
+
+    //if successful, go to add images page
+    $url = $config_basedir . "addimages.php?id=" . $item_id;
+    redirect($url);
+  }
+
+  require("footer.php");
 ?>
-</select>
-</td>
-</tr>
-<tr>
-<td>Item name</td>
-<td><input type=”text” name=”name”></td>
-</tr>
-<tr>
-<td>Item description</td>
-<td><textarea name=”description” rows=”10”
-cols=”50”></textarea></td>
-</tr>
-<tr>
-<td>Ending date</td>
-<td>
-<table>
-<tr>
-<td>Day</td>
-<td>Month</td>
-<td>Year</td>
-<td>Hour</td>
-<td>Minute</td>
-</tr>
-<tr>
-<td>
-<select name=”day”>
-<?php
-for($i=1;$i<=31;$i++) {
-echo “<option>” . $i . “</option>”;
-}
-?>
-</select>
-</td>
-<td>
-<select name=”month”>
-<?php
-for($i=1;$i<=12;$i++) {
-echo “<option>” . $i . “</option>”;
-}
-?>
-</select>
-</td>
-<td>
-<select name=”year”>
-<?php
-for($i=2005;$i<=2008;$i++) {
-echo “<option>” . $i . “</option>”;
-}
-?>
-</select>
-</td>
-<td>
-<select name=”hour”>
-<?php
-for($i=0;$i<=23;$i++) {
-echo “<option>” . sprintf(“%02d”,$i) . “</option>”;
-}
-?>
-</select>
-</td>
-<td>
-<select name=”minute”>
-<?php
-for($i=0;$i<=60;$i++) {
-echo “<option>” . sprintf(“%02d”,$i) . “</option>”;
-}
-?>
-</select>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-<tr>
-<td>Price</td>
-<td><?php echo $config_currency; ?><input type=”text”
-name=”price”></td>
-</tr>
-<tr>
-<td></td>
-<td><input type=”submit” name=”submit” value=”Post!”></td>
-</tr>
-</table>
-</form>
